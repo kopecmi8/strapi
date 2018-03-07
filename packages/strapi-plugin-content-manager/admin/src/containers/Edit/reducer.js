@@ -29,6 +29,7 @@ import {
 
 const initialState = fromJS({
   currentModelName: '',
+  currentModel: {},
   loading: false,
   record: false,
   initialRecord: {},
@@ -91,7 +92,9 @@ function editReducer(state = initialState, action) {
       return state
         .set('formValidations', List(action.formValidations));
     case SET_FORM:
-      return state.set('form', Map(action.form));
+      return state
+        .set('form', Map(action.form))
+        .set('currentModel', action.currentModel);
     case SET_FORM_ERRORS:
       return state
         .set('formErrors', List(action.formErrors))

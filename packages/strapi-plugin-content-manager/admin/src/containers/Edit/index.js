@@ -118,8 +118,11 @@ export class Edit extends React.Component {
 
     this.props.setInitialState();
     this.props.setCurrentModelName(this.props.match.params.slug.toLowerCase());
+    
+    const currentModel = get(this.props.models, ['models', this.props.match.params.slug.toLowerCase()]) || get(this.props.models, ['plugins', this.source, 'models', this.props.match.params.slug.toLowerCase()]);
+    
     this.props.setFormValidations(attributes);
-    this.props.setForm(attributes);
+    this.props.setForm(attributes, currentModel);
     // Detect that the current route is the `create` route or not
     if (this.props.match.params.id === 'create') {
       this.props.setIsCreating();

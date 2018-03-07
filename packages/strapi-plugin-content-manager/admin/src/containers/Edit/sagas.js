@@ -18,6 +18,7 @@ import {
 import { LOAD_RECORD, EDIT_RECORD, DELETE_RECORD } from './constants';
 import {
   makeSelectCurrentModelName,
+  makeSelectCurrentModel,
   makeSelectRecord,
   makeSelectIsCreating,
 } from './selectors';
@@ -50,11 +51,19 @@ export function* editRecord(action) {
   const record = yield select(makeSelectRecord());
   const recordJSON = record.toJSON();
 
-  const recordCleaned = Object.keys(recordJSON).reduce((acc, current) => {
+  const currentModel = yield select(makeSelectCurrentModel());
+
+  const context = get(currentModel, '@context');
+  const type = get(currentModel, '@type')
+
+  let recordCleaned = Object.keys(recordJSON).reduce((acc, current) => {
     acc[current] = cleanData(recordJSON[current], 'value', 'id');
 
     return acc;
   }, {});
+
+  recordCleaned['@context'] = context;
+  recordCleaned['@type'] = type;
 
   const isCreating = yield select(makeSelectIsCreating());
   const id = isCreating ? '' : recordCleaned.id;

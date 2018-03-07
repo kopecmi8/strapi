@@ -70,4 +70,38 @@ module.exports = {
       id: params.id
     });
   },
+
+  getModel: (name, source) => {
+    name = _.toLower(name);
+
+    const model = source ? _.get(strapi.plugins, [source, 'models', name]) : _.get(strapi.models, name);
+
+    // const model = _.get(strapi.models, name);
+
+    const attributes = [];
+    _.forEach(model.attributes, (params, name) => {
+      const relation = _.find(model.associations, { alias: name });
+
+      if (relation) {
+        params = _.omit(params, ['collection', 'model', 'via']);
+        params.target = relation.model || relation.collection;
+        params.key = relation.via;
+        params.nature = relation.nature;
+        params.targetColumnName = _.get((params.plugin ? strapi.plugins[params.plugin].models : strapi.models )[params.target].attributes[params.key], 'columnName', '');
+      }
+
+      attributes.push({
+        name,
+        params
+      });
+    });
+
+    return {
+      name: _.get(model, 'info.name', 'model.name.missing'),
+      description: _.get(model, 'info.description', 'model.description.missing'),
+      connection: model.connection,
+      collectionName: model.collectionName,
+      attributes: attributes
+    };
+  },
 };

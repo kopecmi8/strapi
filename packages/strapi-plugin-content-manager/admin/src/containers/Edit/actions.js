@@ -103,7 +103,7 @@ export function setCurrentModelName(currentModelName) {
   };
 }
 
-export function setForm(data) {
+export function setForm(data, currentModel) {
   const form = [];
   Object.keys(data).map(attr => {
     form.push([attr, '']);
@@ -112,6 +112,7 @@ export function setForm(data) {
   return {
     type: SET_FORM,
     form,
+    currentModel,
   };
 }
 

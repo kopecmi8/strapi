@@ -80,7 +80,7 @@ class EditForm extends React.Component {
           label={get(layout, 'label') || details.label || ''}
           name={attr}
           customBootstrapClass={get(layout, 'className') || ''}
-          value={this.props.record.get(attr) || ''}
+          value={this.props.record.get(attr) || get(displayedFields[attr], 'value') || ''}
           placeholder={get(layout, 'placeholder') || details.placeholder || details.label || attr || ''}
           onChange={this.props.onChange}
           validations={get(layout, 'validations') || validations}

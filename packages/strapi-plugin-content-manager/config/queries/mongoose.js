@@ -23,8 +23,10 @@ module.exports = {
   },
 
   create: async function (params) {
+
     const entry = await this.create(Object.keys(params.values).reduce((acc, current) => {
-      if (this._attributes[current].type) {
+
+      if (current == '@context' || current == '@type' || this._attributes[current].type ) {
         acc[current] = params.values[current];
       }
 

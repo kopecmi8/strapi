@@ -25,9 +25,10 @@ const generateSchema = (responses) => {
     schemaModel.fields = mapValues(pickBy(model.attributes, attribute =>
       !attribute.model && !attribute.collection
     ), (value, attribute) => ({
-      label: upperFirst(attribute),
+      label: value.label || upperFirst(attribute),
       description: '',
       type: value.type || 'string',
+      value: value.value || '',
     }));
 
     // Select fields displayed in list view

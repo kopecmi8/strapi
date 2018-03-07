@@ -9,6 +9,8 @@ const _ = require('lodash');
 module.exports = {
   models: async ctx => {
     const pickData = (model) => _.pick(model, [
+      '@context',
+      '@type',
       'info',
       'connection',
       'collectionName',
