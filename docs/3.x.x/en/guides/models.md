@@ -3,6 +3,7 @@
 See the [models' concepts](../concepts/concepts.md#models) for details.
 
 ## How to create a model?
+> Note: If you are just starting out it is very convenient to generate some models with the Content Type Builder, directly in the admin interface. You can then review the generated model mappings on the code level. The UI takes over a lot of validation tasks and gives you a fast feeling for available features.
 
 Use the CLI, and run the following command `strapi generate:model user firstname:string lastname:string`. Read the [CLI documentation](../cli/CLI.md) for more informations.
 
@@ -33,6 +34,23 @@ The following types are currently available:
   - `json`
   - `email`
 
+#### Validations
+
+You can apply basic validations to the attributes. The following supported validations are *only supported by MongoDB* connection.
+If you're using SQL databases, you should use the native SQL constraints to apply them.
+
+  - `required` (boolean) — if true adds a required validator for this property.
+  - `unique` (boolean) — whether to define a unique index on this property.
+  - `max` (integer) — checks if the value is greater than or equal to the given minimum.
+  - `min` (integer) — checks if the value is less than or equal to the given maximum.
+
+
+**Security validations**
+To improve the Developer eXperience when developing or using the administration panel, the framework enhances the attributes with these "security validations":
+
+  - `private` (boolean) — if true, the attribute will be removed from the server response (it's useful to hide sensitive data).
+  - `configurable` (boolean) - if false, the attribute isn't configurable from the Content Type Builder plugin.
+
 #### Example
 
 **Path —** `User.settings.json`.
@@ -50,14 +68,23 @@ The following types are currently available:
     "lastname": {
       "type": "string"
     },
+    "email": {
+      "type": "email",
+      "required": true,
+      "unique": true
+    },
     "password": {
-      "type": "password"
+      "type": "password",
+      "required": true,
+      "private": true
     },
     "about": {
       "type": "description"
     },
     "age": {
-      "type": "integer"
+      "type": "integer",
+      "min": 18,
+      "max": 99
     },
     "birthday": {
       "type": "date"
@@ -69,6 +96,167 @@ The following types are currently available:
 ## Relations
 
 Refer to the [relations concept](../concepts/concepts.md#relations) for more informations about relations type.
+
+### One-way
+
+Refer to the [one-way concept](../concepts/concepts.md#one-way) for informations.
+
+#### Example
+
+A `pet` can be owned by someone (a `user`).
+
+**Path —** `./api/pet/models/Pet.settings.json`.
+```json
+{
+  "attributes": {
+    "owner": {
+      "model": "user"
+    }
+  }
+}
+```
+
+**Path —** `./api/pet/controllers/Pet.js`.
+```js
+// Mongoose example
+module.exports = {
+  findPetsWithOwners: async (ctx) => {
+    // Retrieve the list of pets with their owners.
+    const pets = Pet
+      .find()
+      .populate('owner');
+
+    // Send the list of pets.
+    ctx.body = pets;
+  }
+}
+```
+
+### One-to-one
+
+Refer to the [one-to-one concept](../concepts/concepts.md#one-to-one) for informations.
+
+#### Example
+
+A `user` can have one `address`. And this address is only related to this `user`.
+
+**Path —** `./api/user/models/User.settings.json`.
+```json
+{
+  "attributes": {
+    "address": {
+      "model": "address",
+      "via": "user"
+    }
+  }
+}
+```
+
+**Path —** `./api/address/models/Address.settings.json`.
+```json
+{
+  "attributes": {
+    "user": {
+      "model": "user"
+    }
+  }
+}
+```
+
+**Path —** `./api/user/controllers/User.js`.
+```js
+// Mongoose example
+module.exports = {
+  findUsersWithAddresses: async (ctx) => {
+    // Retrieve the list of users with their addresses.
+    const users = User
+      .find()
+      .populate('address');
+
+    // Send the list of users.
+    ctx.body = users;
+  }
+}
+```
+
+**Path —** `./api/adress/controllers/Address.js`.
+```js
+// Mongoose example
+module.exports = {
+  findArticlesWithUsers: async (ctx) => {
+    // Retrieve the list of addresses with their users.
+    const articles = Address
+      .find()
+      .populate('user');
+
+    // Send the list of addresses.
+    ctx.body = addresses;
+  }
+}
+```
+
+### One-to-many
+
+Refer to the [one-to-many concept](../concepts/concepts.md#one-to-many) for more informations.
+
+#### Example
+
+A `user` can have many `articles`, and an `article` can be related to one `user` (author).
+
+**Path —** `./api/user/models/User.settings.json`.
+```json
+{
+  "attributes": {
+    "articles": {
+      "collection": "article",
+      "via": "author"
+    }
+  }
+}
+```
+
+**Path —** `./api/article/models/Article.settings.json`.
+```json
+{
+  "attributes": {
+    "author": {
+      "model": "user"
+    }
+  }
+}
+```
+
+**Path —** `./api/user/controllers/User.js`.
+```js
+// Mongoose example
+module.exports = {
+  findUsersWithArticles: async (ctx) => {
+    // Retrieve the list of users with their articles.
+    const users = User
+      .find()
+      .populate('articles');
+
+    // Send the list of users.
+    ctx.body = users;
+  }
+}
+```
+
+**Path —** `./api/article/controllers/Article.js`.
+```js
+// Mongoose example
+module.exports = {
+  findArticlesWithAuthors: async (ctx) => {
+    // Retrieve the list of articles with their authors.
+    const articles = Article
+      .find()
+      .populate('author');
+
+    // Send the list of users.
+    ctx.body = users;
+  }
+}
+```
 
 ### Many-to-many
 
@@ -137,21 +325,81 @@ module.exports = {
 }
 ```
 
-### One-to-many
+### Polymorphic
 
-Refer to the [one-to-many concept](../concepts/concepts.md#one-to-many) for more informations.
+Refer to the [polymorphic concept](../concepts/concepts.md#polymorphic) for more informations.
 
-#### Example
+The polymorphic relationships are the solution when you don't know which kind of model will be associated to your entry. A common use case is an `Image` model that can be associated to many others kind of models (Article, Product, User, etc).
 
-A `user` can have many `articles`, and an `article` can be related to one `user` (author).
+#### Single vs Many
 
-**Path —** `./api/user/models/User.settings.json`.
+Let's stay with our `Image` model which might belongs to **a single `Article` or `Product` entry**.
+
+> In other words, it means that a `Image` entry can be associated to one entry. This entry can be a `Article` or `Product` entry.
+
+**Path —** `./api/image/models/Image.settings.json`.
 ```json
 {
   "attributes": {
-    "articles": {
-      "collection": "article",
-      "via": "author"
+    "related": {
+      "model": "*",
+      "filter": "field"
+    }
+  }
+}
+```
+
+Also, our `Image` model which might belongs to **many `Article` or `Product` entries**.
+
+> In other words, it means that a `Article` entry can relate to the same image than a `Product` entry.
+
+**Path —** `./api/image/models/Image.settings.json`.
+```json
+{
+  "attributes": {
+    "related": {
+      "collection": "*",
+      "filter": "field"
+    }
+  }
+}
+```
+
+#### Filter
+
+The `filter` attribute is optional (but we highly recommend to use every time). If it's provided it adds a new match level to retrieve the related data.
+
+For example, the `Product` model might have two attributes which are associated to the `Image` model. To distinguish which image is attached to the `cover` field and which images are attached to the `pictures` field, we need to save and provide this to the database.
+
+**Path —** `./api/article/models/Product.settings.json`.
+```json
+{
+  "attributes": {
+    "cover": {
+      "model": "image",
+      "via": "related",
+    },
+    "pictures": {
+      "collection": "image",
+      "via": "related"
+    }
+  }
+}
+```
+
+The value is the `filter` attribute is the name of the column where the information is stored.
+
+#### Example
+
+A `Image` model might belongs to many either `Article` models or a `Product` models.
+
+**Path —** `./api/image/models/Image.settings.json`.
+```json
+{
+  "attributes": {
+    "related": {
+      "collection": "*",
+      "filter": "field"
     }
   }
 }
@@ -161,25 +409,55 @@ A `user` can have many `articles`, and an `article` can be related to one `user`
 ```json
 {
   "attributes": {
-    "author": {
-      "model": "user"
+    "avatar": {
+      "model": "image",
+      "via": "related"
     }
   }
 }
 ```
 
-**Path —** `./api/user/controllers/User.js`.
+**Path —** `./api/article/models/Product.settings.json`.
+```json
+{
+  "attributes": {
+    "pictures": {
+      "collection": "image",
+      "via": "related"
+    }
+  }
+}
+```
+
+**Path —** `./api/image/controllers/Image.js`.
 ```js
 // Mongoose example
 module.exports = {
-  findUsersWithArticles: async (ctx) => {
-    // Retrieve the list of users with their articles.
-    const users = User
+  findFiles: async (ctx) => {
+    // Retrieve the list of images with the Article or Product entries related to them.
+    const images = Images
       .find()
-      .populate('articles');
+      .populate('related');
 
-    // Send the list of users.
-    ctx.body = users;
+    /*
+    [{
+      "_id": "5a81b0fa8c063a53298a934a",
+      "url": "http://....",
+      "name": "john_doe_avatar.png",
+      "related": [{
+        "_id": "5a81b0fa8c063a5393qj934a",
+        "title": "John Doe is awesome",
+        "description": "..."
+      }, {
+        "_id": "5a81jei389ns5abd75f79c",
+        "name": "A simple chair",
+        "description": "..."
+      }]
+    }]
+    */
+
+    // Send the list of files.
+    ctx.body = images;
   }
 }
 ```
@@ -188,114 +466,127 @@ module.exports = {
 ```js
 // Mongoose example
 module.exports = {
-  findArticlesWithAuthors: async (ctx) => {
-    // Retrieve the list of articles with their authors.
+  findArticlesWithAvatar: async (ctx) => {
+    // Retrieve the list of articles with the avatar (image).
     const articles = Article
       .find()
-      .populate('author');
+      .populate('avatar');
+
+    /*
+    [{
+      "_id": "5a81b0fa8c063a5393qj934a",
+      "title": "John Doe is awesome",
+      "description": "...",
+      "avatar": {
+        "_id": "5a81b0fa8c063a53298a934a",
+        "url": "http://....",
+        "name": "john_doe_avatar.png"
+      }
+    }]
+    */
 
     // Send the list of users.
-    ctx.body = users;
+    ctx.body = articles;
   }
 }
 ```
 
-### One-to-one
-
-Refer to the [one-to-one concept](../concepts/concepts.md#one-to-one) for informations.
-
-#### Example
-
-A `user` can have one `address`. And this address is only related to this `user`.
-
-**Path —** `./api/user/models/User.settings.json`.
-```json
-{
-  "attributes": {
-    "address": {
-      "model": "address",
-      "via": "user"
-    }
-  }
-}
-```
-
-**Path —** `./api/address/models/Address.settings.json`.
-```json
-{
-  "attributes": {
-    "user": {
-      "model": "user"
-    }
-  }
-}
-```
-
-**Path —** `./api/user/controllers/User.js`.
+**Path —** `./api/product/controllers/Product.js`.
 ```js
 // Mongoose example
 module.exports = {
-  findUsersWithAddresses: async (ctx) => {
-    // Retrieve the list of users with their addresses.
-    const users = User
+  findProductWithPictures: async (ctx) => {
+    // Retrieve the list of products with the pictures (images).
+    const products = Product
       .find()
-      .populate('address');
+      .populate('pictures');
+
+    /*
+    [{
+      "_id": "5a81jei389ns5abd75f79c",
+      "name": "A simple chair",
+      "description": "...",
+      "pictures": [{
+        "_id": "5a81b0fa8c063a53298a934a",
+        "url": "http://....",
+        "name": "chair_position_1.png"
+      }, {
+        "_id": "5a81d22bee1ad45abd75f79c",
+        "url": "http://....",
+        "name": "chair_position_2.png"
+      }, {
+        "_id": "5a81d232ee1ad45abd75f79e",
+        "url": "http://....",
+        "name": "chair_position_3.png"
+      }]
+    }]
+    */
 
     // Send the list of users.
-    ctx.body = users;
+    ctx.body = products;
   }
 }
 ```
 
-**Path —** `./api/adress/controllers/Address.js`.
-```js
-// Mongoose example
-module.exports = {
-  findArticlesWithUsers: async (ctx) => {
-    // Retrieve the list of addresses with their users.
-    const articles = Address
-      .find()
-      .populate('user');
+#### Database implementation
 
-    // Send the list of addresses.
-    ctx.body = addresses;
-  }
-}
-```
-### One-way
+If you're using MongoDB as a database, you don't need to do anything. Everything is natively handled by Strapi. However, to implement a polymorphic relationship with SQL databases, you need to create two tables.
 
-Refer to the [one-way concept](../concepts/concepts.md#one-way) for informations.
-
-#### Example
-
-A `pet` can be owned by someone (a `user`).
-
-**Path —** `./api/pet/models/Pet.settings.json`.
+**Path —** `./api/image/models/Image.settings.json`.
 ```json
 {
   "attributes": {
-    "owner": {
-      "model": "user"
+    "name": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "related": {
+      "collection": "*",
+      "filter": "field"
     }
   }
 }
 ```
 
-**Path —** `./api/pet/controllers/Pet.js`.
-```js
-// Mongoose example
-module.exports = {
-  findPetsWithOwners: async (ctx) => {
-    // Retrieve the list of pets with their owners.
-    const pets = Pet
-      .find()
-      .populate('owner');
-
-    // Send the list of pets.
-    ctx.body = pets;
-  }
-}
+The first table to create is the table which has the same name as your model.
 ```
+CREATE TABLE `image` (
+  `id` int(11) NOT NULL,
+  `name` text NOT NULL,
+  `text` text NOT NULL
+)
+```
+
+> Note: If you've overrided the default table name given by Strapi by using the `collectionName` attribute. Use the value set in the `collectionName` to name the table.
+
+The second table will allow us to associate one or many others entries to the `Image` model. The name of the table is the same as the previous one with the suffix `_morph`.
+```
+CREATE TABLE `image_morph` (
+  `id` int(11) NOT NULL,
+  `image_id` int(11) NOT NULL,
+  `related_id` int(11) NOT NULL,
+  `related_type` text NOT NULL,
+  `field` text NOT NULL
+)
+```
+
+- `image_id` is using the name of the first table with the suffix `_id`.
+  - **Attempted value:** It correspond to the id of an `Image` entry.
+- `related_id` is using the attribute name where the relation happens with the suffix `_id`.
+  - **Attempted value:** It correspond to the id of an `Article` or `Product` entry.
+- `related_type` is using the attribute name where the relation happens with the suffix `_type`.
+  - **Attempted value:** It correspond to the table name where the `Article` or `Product` entry is stored.
+- `field` is using the filter property value defined in the model. If you change the filter value, you have to change the name of this column as well.
+  - **Attempted value:** It correspond to the attribute of a `Article`, `Product` with which the `Image` entry is related.
+
+
+| id | image_id | related_id | related_type | field  |
+|----|----------|------------|--------------|--------|
+| 1  | 1738     | 39         | product      | cover  |
+| 2  | 4738     | 58         | article      | avatar |
+| 3  | 1738     | 71         | article      | avatar |
 
 ## Lifecycle callbacks
 

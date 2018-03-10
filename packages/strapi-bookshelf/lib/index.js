@@ -88,7 +88,8 @@ module.exports = function(strapi) {
             const loadedModel = _.assign({
                 tableName: definition.collectionName,
                 hasTimestamps: _.get(definition, 'options.timestamps') === true,
-                idAttribute: _.get(definition, 'options.idAttribute', 'id')
+                idAttribute: _.get(definition, 'options.idAttribute', 'id'),
+                associations: []
               }, definition.options);
 
             if (_.isString(_.get(connection, 'options.pivot_prefix'))) {
@@ -133,6 +134,67 @@ module.exports = function(strapi) {
                       : key;
                   });
 
+                // Update serialize to reformat data for polymorphic associations.
+                loadedModel.serialize = function(options) {
+                  const attrs = _.clone(this.attributes);
+
+                  if (options && options.shallow) {
+                    return attrs;
+                  }
+
+                  const relations = this.relations;
+
+                  // Extract association except polymorphic.
+                  const associations = definition.associations
+                    .filter(association => association.nature.toLowerCase().indexOf('morph') === -1);
+                  // Extract polymorphic association.
+                  const polymorphicAssociations = definition.associations
+                    .filter(association => association.nature.toLowerCase().indexOf('morph') !== -1);
+
+                  polymorphicAssociations.map(association => {
+                    // Retrieve relation Bookshelf object.
+                    const relation = relations[association.alias];
+
+                    if (relation) {
+                      // Extract raw JSON data.
+                      attrs[association.alias] = relation.toJSON ? relation.toJSON(options) : relation;
+
+                      // Retrieve opposite model.
+                      const model = association.plugin ?
+                        strapi.plugins[association.plugin].models[association.collection || association.model]:
+                        strapi.models[association.collection || association.model];
+
+                      // Reformat data by bypassing the many-to-many relationship.
+                      switch (association.nature) {
+                        case 'oneToManyMorph':
+                          attrs[association.alias] = attrs[association.alias][model.collectionName];
+                          break;
+                        case 'manyToManyMorph':
+                          attrs[association.alias] = attrs[association.alias].map(rel => rel[model.collectionName]);
+                          break;
+                        case 'oneMorphToOne':
+                          attrs[association.alias] = attrs[association.alias].related;
+                          break;
+                        case 'manyMorphToOne':
+                          attrs[association.alias] = attrs[association.alias].map(obj => obj.related);
+                          break;
+                        default:
+                      }
+                    }
+                  });
+
+                  associations.map(association => {
+                    const relation = relations[association.alias];
+
+                    if (relation) {
+                      // Extract raw JSON data.
+                      attrs[association.alias] = relation.toJSON ? relation.toJSON(options) : relation;
+                    }
+                  });
+
+                  return attrs;
+                }
+
                 // Initialize lifecycle callbacks.
                 loadedModel.initialize = function() {
                   const lifecycle = {
@@ -154,6 +216,46 @@ module.exports = function(strapi) {
                     if (_.isFunction(target[model.toLowerCase()][fn])) {
                       this.on(key, target[model.toLowerCase()][fn]);
                     }
+                  });
+
+                  // Update withRelated level to bypass many-to-many association for polymorphic relationshiips.
+                  // Apply only during fetching.
+                  this.on('fetching fetching:collection', (instance, attrs, options) => {
+                    if (_.isArray(options.withRelated)) {
+                      options.withRelated = options.withRelated.map(path => {
+                        const association = definition.associations
+                          .filter(association => association.nature.toLowerCase().indexOf('morph') !== -1)
+                          .filter(association => association.alias === path || association.via === path)[0];
+
+                        if (association) {
+                          // Override on polymorphic path only.
+                          if (_.isString(path) && path === association.via) {
+                            return `related.${association.via}`;
+                          } else if (_.isString(path) && path === association.alias) {
+                            // MorphTo side.
+                            if (association.related) {
+                              return `${association.alias}.related`;
+                            }
+
+                            // oneToMorph or manyToMorph side.
+                            // Retrieve collection name because we are using it to build our hidden model.
+                            const model = association.plugin ?
+                              strapi.plugins[association.plugin].models[association.collection || association.model]:
+                              strapi.models[association.collection || association.model];
+
+                            return `${association.alias}.${model.collectionName}`;
+                          }
+                        }
+
+                        return path;
+                      });
+                    }
+
+                    return _.isFunction(
+                      target[model.toLowerCase()]['beforeFetchCollection']
+                    )
+                      ? target[model.toLowerCase()]['beforeFetchCollection']
+                      : Promise.resolve();
                   });
 
                   this.on('saving', (instance, attrs, options) => {
@@ -225,9 +327,15 @@ module.exports = function(strapi) {
                 name
               );
 
-              const globalId = details.plugin ?
-                _.get(strapi.plugins,`${details.plugin}.models.${(details.model || details.collection || '').toLowerCase()}.globalId`):
-                _.get(strapi.models, `${(details.model || details.collection || '').toLowerCase()}.globalId`);
+              let globalId;
+              const globalName = details.model || details.collection || '';
+
+              // Exclude polymorphic association.
+              if (globalName !== '*') {
+                globalId = details.plugin ?
+                  _.get(strapi.plugins,`${details.plugin}.models.${globalName.toLowerCase()}.globalId`):
+                  _.get(strapi.models, `${globalName.toLowerCase()}.globalId`);
+              }
 
               switch (verbose) {
                 case 'hasOne': {
@@ -369,6 +477,105 @@ module.exports = function(strapi) {
                   };
                   break;
                 }
+                case 'morphOne': {
+                  const model = details.plugin ?
+                    strapi.plugins[details.plugin].models[details.model]:
+                    strapi.models[details.model];
+
+                  const globalId = `${model.collectionName}_morph`;
+
+                  loadedModel[name] =  function() {
+                    return this
+                      .morphOne(GLOBALS[globalId], details.via, `${definition.collectionName}`)
+                      .query(qb => {
+                        qb.where(_.get(model, `attributes.${details.via}.filter`, 'field'), name);
+                      });
+                  }
+                  break;
+                }
+                case 'morphMany': {
+                  const collection = details.plugin ?
+                    strapi.plugins[details.plugin].models[details.collection]:
+                    strapi.models[details.collection];
+
+                  const globalId = `${collection.collectionName}_morph`;
+
+                  loadedModel[name] =  function() {
+                    return this
+                      .morphMany(GLOBALS[globalId], details.via, `${definition.collectionName}`)
+                      .query(qb => {
+                        qb.where(_.get(collection, `attributes.${details.via}.filter`, 'field'), name);
+                      });
+                  }
+                  break;
+                }
+                case 'belongsToMorph':
+                case 'belongsToManyMorph': {
+                  const association = definition.associations
+                    .find(association => association.alias === name);
+
+                  const morphValues = association.related.map(id => {
+                    let models = Object.values(strapi.models).filter(model => model.globalId === id);
+
+                    if (models.length === 0) {
+                      models = Object.keys(strapi.plugins).reduce((acc, current) => {
+                        const models = Object.values(strapi.plugins[current].models).filter(model => model.globalId === id);
+
+                        if (acc.length === 0 && models.length > 0) {
+                          acc = models;
+                        }
+
+                        return acc;
+                      }, []);
+                    }
+
+                    if (models.length === 0) {
+                      strapi.log.error('Impossible to register the `' + model + '` model.');
+                      strapi.log.error('The collection name cannot be found for the morphTo method.');
+                      strapi.stop();
+                    }
+
+                    return models[0].collectionName;
+                  });
+
+                  // Define new model.
+                  const options = {
+                    tableName: `${definition.collectionName}_morph`,
+                    [definition.collectionName]: function () {
+                      return this
+                        .belongsTo(
+                          GLOBALS[definition.globalId],
+                          `${definition.collectionName}_id`
+                        );
+                    },
+                    related: function () {
+                      return this
+                        .morphTo(name, ...association.related.map((id, index) => [GLOBALS[id], morphValues[index]]));
+                    }
+                  };
+
+                  GLOBALS[options.tableName] = ORM.Model.extend(options);
+
+                  // Set polymorphic table name to the main model.
+                  target[model].morph = GLOBALS[options.tableName];
+
+                  // Hack Bookshelf to create a many-to-many polymorphic association.
+                  // Upload has many Upload_morph that morph to different model.
+                  loadedModel[name] = function () {
+                    if (verbose === 'belongsToMorph') {
+                      return this.hasOne(
+                        GLOBALS[options.tableName],
+                        `${definition.collectionName}_id`
+                      );
+                    }
+
+                    return this.hasMany(
+                      GLOBALS[options.tableName],
+                      `${definition.collectionName}_id`
+                    );
+                  };
+                  break;
+                }
                 default: {
                   break;
                 }
@@ -458,8 +665,12 @@ module.exports = function(strapi) {
     },
 
     manageRelations: async function (model, params) {
-      const models = strapi.models;
-      const Model = strapi.models[model];
+      const models = _.assign(_.clone(strapi.models), Object.keys(strapi.plugins).reduce((acc, current) => {
+        _.assign(acc, strapi.plugins[current].models);
+        return acc;
+      }, {}));
+
+      const Model = models[model];
 
       const virtualFields = [];
       const record = await Model
@@ -564,7 +775,7 @@ module.exports = function(strapi) {
                     id: value[Model.primaryKey] || value.id || value._id,
                     values: association.nature === 'manyToMany' ? params.values : value,
                     foreignKey: current
-                  }));
+                  }, details.plugin));
                 });
 
                 toRemove.forEach(value => {
@@ -574,12 +785,80 @@ module.exports = function(strapi) {
                     id: value[Model.primaryKey] || value.id || value._id,
                     values: association.nature === 'manyToMany' ? params.values : value,
                     foreignKey: current
-                  }));
+                  }, details.plugin));
                 });
               } else if (_.get(Model._attributes, `${current}.isVirtual`) !== true) {
                 acc[current] = params.values[current];
               }
 
+              break;
+            case 'manyMorphToMany':
+            case 'manyMorphToOne':
+              // Update the relational array.
+              params.values[current].forEach(obj => {
+                const model = obj.source && obj.source !== 'content-manager' ?
+                  strapi.plugins[obj.source].models[obj.ref]:
+                  strapi.models[obj.ref];
+
+                virtualFields.push(this.addRelationMorph(details.model || details.collection, {
+                  id: response[this.primaryKey],
+                  alias: association.alias,
+                  ref: model.collectionName,
+                  refId: obj.refId,
+                  field: obj.field
+                }, obj.source));
+              });
+              break;
+            case 'oneToManyMorph':
+            case 'manyToManyMorph':
+              const transformToArrayID = (array) => {
+                if(_.isArray(array)) {
+                  return array.map(value => {
+                    if (_.isPlainObject(value)) {
+                      return value._id || value.id;
+                    }
+
+                    return value;
+                  })
+                }
+
+                if (association.type === 'model') {
+                  return _.isEmpty(array) ? [] : transformToArrayID([array]);
+                }
+
+                return [];
+              };
+
+              // Compare array of ID to find deleted files.
+              const currentValue = transformToArrayID(response[current]).map(id => id.toString());
+              const storedValue = transformToArrayID(params.values[current]).map(id => id.toString());
+
+              const toAdd = _.difference(storedValue, currentValue);
+              const toRemove = _.difference(currentValue, storedValue);
+
+              toAdd.forEach(id => {
+                virtualFields.push(this.addRelationMorph(details.model || details.collection, {
+                  id,
+                  alias: association.via,
+                  ref: Model.collectionName,
+                  refId: response.id,
+                  field: association.alias
+                }, details.plugin));
+              });
+
+              // Update the relational array.
+              toRemove.forEach(id => {
+                virtualFields.push(this.removeRelationMorph(details.model || details.collection, {
+                  id,
+                  alias: association.via,
+                  ref: Model.collectionName,
+                  refId: response.id,
+                  field: association.alias
+                }, details.plugin));
+              });
+              break;
+            case 'oneMorphToOne':
+            case 'oneMorphToMany':
               break;
             default:
           }
@@ -604,8 +883,13 @@ module.exports = function(strapi) {
       await Promise.all(virtualFields);
     },
 
-    addRelation: async function (model, params) {
-      const Model = strapi.models[model];
+    addRelation: async function (model, params, source) {
+      const models = _.assign(_.clone(strapi.models), Object.keys(strapi.plugins).reduce((acc, current) => {
+        _.assign(acc, strapi.plugins[current].models);
+        return acc;
+      }, {}));
+
+      const Model = models[model];
       const association = Model.associations.filter(x => x.via === params.foreignKey)[0];
 
       if (!association) {
@@ -627,8 +911,14 @@ module.exports = function(strapi) {
       }
     },
 
-    removeRelation: async function (model, params) {
-      const Model = strapi.models[model];
+    removeRelation: async function (model, params, source) {
+      const models = _.assign(_.clone(strapi.models), Object.keys(strapi.plugins).reduce((acc, current) => {
+        _.assign(acc, strapi.plugins[current].models);
+        return acc;
+      }, {}));
+
+      const Model = models[model];
+
       const association = Model.associations.filter(x => x.via === params.foreignKey)[0];
 
       if (!association) {
@@ -648,6 +938,58 @@ module.exports = function(strapi) {
           // Resolve silently.
           return Promise.resolve();
       }
+    },
+
+    addRelationMorph: async function (model, params, source) {
+      const models = _.assign(_.clone(strapi.models), Object.keys(strapi.plugins).reduce((acc, current) => {
+        _.assign(acc, strapi.plugins[current].models);
+        return acc;
+      }, {}));
+
+      const Model = models[model];
+
+      const record = await Model.morph.forge()
+        .where({
+          [`${Model.collectionName}_id`]: params.id,
+          [`${params.alias}_id`]: params.refId,
+          [`${params.alias}_type`]: params.ref,
+          field: params.field
+        })
+        .fetch({
+          withRelated: Model.associations.map(x => x.alias)
+        });
+
+      const entry = record ? record.toJSON() : record;
+
+      if (entry) {
+        return Promise.resolve();
+      }
+
+      return await Model.morph.forge({
+          [`${Model.collectionName}_id`]: params.id,
+          [`${params.alias}_id`]: params.refId,
+          [`${params.alias}_type`]: params.ref,
+          field: params.field
+        })
+        .save();
+    },
+
+    removeRelationMorph: async function (model, params, source) {
+      const models = _.assign(_.clone(strapi.models), Object.keys(strapi.plugins).reduce((acc, current) => {
+        _.assign(acc, strapi.plugins[current].models);
+        return acc;
+      }, {}));
+
+      const Model = models[model];
+
+      return await Model.morph.forge()
+        .where({
+          [`${Model.collectionName}_id`]: params.id,
+          [`${params.alias}_id`]: params.refId,
+          [`${params.alias}_type`]: params.ref,
+          field: params.field
+        })
+        .destroy();
     }
   };
 

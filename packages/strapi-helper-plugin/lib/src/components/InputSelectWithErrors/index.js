@@ -6,7 +6,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { includes, isEmpty, isFunction, mapKeys, reject } from 'lodash';
+import { get, isEmpty, isFunction } from 'lodash';
 import cn from 'classnames';
 
 // Design
@@ -26,6 +26,15 @@ class InputSelectWithErrors extends React.Component {
     if (!isEmpty(errors)) {
       this.setState({ errors });
     }
+
+    if (isEmpty(this.props.value) && this.props.validations.required === true) {
+      const target = {
+        type: 'select',
+        name: this.props.name,
+        value: get(this.props.selectOptions, ['0', 'value']) || get(this.props.selectOptions, ['0']),
+      };
+      this.props.onChange({ target });
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -34,6 +43,12 @@ class InputSelectWithErrors extends React.Component {
       // Remove from the state the errors that have already been set
       const errors = isEmpty(nextProps.errors) ? [] : nextProps.errors;
       this.setState({ errors });
+    }
+  }
+
+  handleBlur = ({ target }) => {
+    if (!isEmpty(target.value)) {
+      this.setState({ errors: [] });
     }
   }
 
@@ -67,7 +82,7 @@ class InputSelectWithErrors extends React.Component {
 
     return (
       <div className={cn(
-          styles.container,
+          styles.containerSelect,
           customBootstrapClass,
           !isEmpty(className) && className,
         )}
@@ -86,7 +101,7 @@ class InputSelectWithErrors extends React.Component {
           disabled={disabled}
           error={!isEmpty(this.state.errors)}
           name={name}
-          onBlur={onBlur}
+          onBlur={isFunction(onBlur) ? onBlur : this.handleBlur}
           onChange={onChange}
           onFocus={onFocus}
           selectOptions={selectOptions}
@@ -127,11 +142,12 @@ InputSelectWithErrors.defaultProps = {
   label: '',
   labelClassName: '',
   labelStyle: {},
-  onBlur: () => {},
+  onBlur: false,
   onFocus: () => {},
   selectOptions: [],
   style: {},
   tabIndex: '0',
+  validations: {},
 };
 
 InputSelectWithErrors.propTypes = {
@@ -167,19 +183,26 @@ InputSelectWithErrors.propTypes = {
   labelClassName: PropTypes.string,
   labelStyle: PropTypes.object,
   name: PropTypes.string.isRequired,
-  onBlur: PropTypes.func,
+  onBlur: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.func,
+  ]),
   onChange: PropTypes.func.isRequired,
   onFocus: PropTypes.func,
   selectOptions: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      name: PropTypes.string,
-      params: PropTypes.object,
-      value: PropTypes.string.isRequired,
-    }).isRequired,
-  ),
+    PropTypes.oneOfType([
+      PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+        params: PropTypes.object,
+        value: PropTypes.string.isRequired,
+      }),
+      PropTypes.string,
+    ]),
+  ).isRequired,
   style: PropTypes.object,
   tabIndex: PropTypes.string,
+  validation: PropTypes.object,
   value: PropTypes.string.isRequired,
 };
 

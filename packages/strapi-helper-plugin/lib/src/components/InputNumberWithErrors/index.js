@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { includes, isEmpty, isFunction, mapKeys, reject } from 'lodash';
+import { isEmpty, isFunction } from 'lodash';
 import cn from 'classnames';
 
 // Design
@@ -8,6 +8,10 @@ import Label from 'components/Label';
 import InputDescription from 'components/InputDescription';
 import InputErrors from 'components/InputErrors';
 import InputNumber from 'components/InputNumber';
+import InputSpacer from 'components/InputSpacer';
+
+// Utils
+import validateInput from 'utils/inputsValidations';
 
 import styles from './styles.scss';
 
@@ -18,7 +22,7 @@ class InputNumberWithErrors extends React.Component { // eslint-disable-line rea
     const { value, errors } = this.props;
 
     // Prevent the input from displaying an error when the user enters and leaves without filling it
-    if (value && !isEmpty(value)) {
+    if (!isEmpty(value)) {
       this.setState({ hasInitialValue: true });
     }
 
@@ -29,6 +33,11 @@ class InputNumberWithErrors extends React.Component { // eslint-disable-line rea
   }
 
   componentWillReceiveProps(nextProps) {
+    // Show required error if the input's value is received after the compo is mounted
+    if (!isEmpty(nextProps.value) && !this.state.hasInitialValue) {
+      this.setState({ hasInitialValue: true });
+    }
+
     // Check if errors have been updated during validations
     if (nextProps.didCheckErrors !== this.props.didCheckErrors) {
       // Remove from the state the errors that have already been set
@@ -44,7 +53,7 @@ class InputNumberWithErrors extends React.Component { // eslint-disable-line rea
   handleBlur = ({ target }) => {
     // Prevent from displaying error if the input is initially isEmpty
     if (!isEmpty(target.value) || this.state.hasInitialValue) {
-      const errors = this.validate(target.value);
+      const errors = validateInput(target.value, this.props.validations);
       this.setState({ errors, hasInitialValue: true });
     }
   }
@@ -78,7 +87,7 @@ class InputNumberWithErrors extends React.Component { // eslint-disable-line rea
     } = this.props;
     const handleBlur = isFunction(onBlur) ? onBlur : this.handleBlur;
 
-    let spacer = !isEmpty(inputDescription) ? <div className={styles.spacer} /> : <div />;
+    let spacer = !isEmpty(inputDescription) ? <InputSpacer /> : <div />;
 
     if (!noErrorsDescription && !isEmpty(this.state.errors)) {
       spacer = <div />;
@@ -86,7 +95,7 @@ class InputNumberWithErrors extends React.Component { // eslint-disable-line rea
 
     return (
       <div className={cn(
-          styles.container,
+          styles.containerInputNumber,
           customBootstrapClass,
           !isEmpty(className) && className,
         )}
@@ -126,48 +135,6 @@ class InputNumberWithErrors extends React.Component { // eslint-disable-line rea
         {spacer}
       </div>
     );
-  }
-
-  validate = (value) => {
-    const requiredError = { id: 'components.Input.error.validation.required' };
-    let errors = [];
-
-    mapKeys(this.props.validations, (validationValue, validationKey) => {
-      switch (validationKey) {
-        case 'max': {
-          if (parseInt(value, 10) > validationValue) {
-            errors.push({ id: 'components.Input.error.validation.max' });
-          }
-          break;
-        }
-        case 'min': {
-          if (parseInt(value, 10) < validationValue) {
-            errors.push({ id: 'components.Input.error.validation.min' });
-          }
-          break;
-        }
-        case 'required': {
-          if (value.length === 0) {
-            errors.push({ id: 'components.Input.error.validation.required' });
-          }
-          break;
-        }
-        case 'regex': {
-          if (!new RegExp(validationValue).test(value)) {
-            errors.push({ id: 'components.Input.error.validation.regex' });
-          }
-          break;
-        }
-        default:
-          errors = [];
-      }
-    });
-
-    if (includes(errors, requiredError)) {
-      errors = reject(errors, (error) => error !== requiredError);
-    }
-
-    return errors;
   }
 }
 
@@ -242,7 +209,10 @@ InputNumberWithErrors.propTypes = {
   style: PropTypes.object,
   tabIndex: PropTypes.string,
   validations: PropTypes.object,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+  ]),
 };
 
 export default InputNumberWithErrors;

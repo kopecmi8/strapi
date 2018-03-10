@@ -7,13 +7,15 @@ import cn from 'classnames';
 import styles from './styles.scss';
 
 function InputText(props) {
+  const placeholder = isEmpty(props.placeholder) ? 'app.utils.placeholder.defaultMessage' : props.placeholder;
+  
   return (
-    <FormattedMessage id={props.placeholder} defaultMessage={props.placeholder}>
+    <FormattedMessage id={placeholder} defaultMessage={placeholder}>
       {(message) => (
         <input
           autoFocus={props.autoFocus}
           className={cn(
-            styles.input,
+            styles.textInput,
             'form-control',
             !props.deactivateErrorHighlight && props.error && 'is-invalid',
             !isEmpty(props.className) && props.className,
@@ -32,7 +34,7 @@ function InputText(props) {
         />
       )}
     </FormattedMessage>
-  )
+  );
 }
 
 InputText.defaultProps = {

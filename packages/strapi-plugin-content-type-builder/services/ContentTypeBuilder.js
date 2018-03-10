@@ -10,6 +10,10 @@ module.exports = {
     const models = [];
 
     _.forEach(strapi.models, (model, name) => {
+      if (name === 'core_store') {
+        return true;
+      }
+
       models.push({
         icon: 'fa-cube',
         name: _.get(model, 'info.name', 'model.name.missing'),
@@ -40,18 +44,23 @@ module.exports = {
 
     const model = source ? _.get(strapi.plugins, [source, 'models', name]) : _.get(strapi.models, name);
 
-    // const model = _.get(strapi.models, name);
-
     const attributes = [];
     _.forEach(model.attributes, (params, name) => {
       const relation = _.find(model.associations, { alias: name });
 
-      if (relation) {
-        params = _.omit(params, ['collection', 'model', 'via']);
-        params.target = relation.model || relation.collection;
-        params.key = relation.via;
-        params.nature = relation.nature;
-        params.targetColumnName = _.get((params.plugin ? strapi.plugins[params.plugin].models : strapi.models )[params.target].attributes[params.key], 'columnName', '');
+      if (relation &&  !_.isArray(_.get(relation, relation.alias))) {
+        if (params.plugin === 'upload' && relation.model || relation.collection === 'file') {
+          params = {
+            type: 'media',
+            multiple: params.collection ? true : false
+          };
+        } else {
+          params = _.omit(params, ['collection', 'model', 'via']);
+          params.target = relation.model || relation.collection;
+          params.key = relation.via;
+          params.nature = relation.nature;
+          params.targetColumnName = _.get((params.plugin ? strapi.plugins[params.plugin].models : strapi.models )[params.target].attributes[params.key], 'columnName', '');
+        }
       }
 
       attributes.push({
@@ -79,7 +88,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       const scope = {
         generatorType: 'api',
-        id: name,
+        id: name.toLowerCase(),
         rootPath: strapi.config.appPath,
         args: {
           api: name,
@@ -140,6 +149,16 @@ module.exports = {
     _.forEach(attributesConfigurable, attribute => {
       if (_.has(attribute, 'params.type')) {
         attrs[attribute.name] = attribute.params;
+
+        if (attribute.params.type === 'media') {
+          const via = _.findKey(strapi.plugins.upload.models.file.attributes, {collection: '*'});
+
+          attrs[attribute.name] = {
+            [attribute.params.multiple ? 'collection' : 'model']: 'file',
+            via,
+            plugin: 'upload'
+          }
+        }
       } else if (_.has(attribute, 'params.target')) {
         const relation = attribute.params;
         const attr = {

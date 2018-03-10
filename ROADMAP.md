@@ -98,11 +98,12 @@ _Reorganize the mono-repository. The rule to follow is to only have hooks withou
 - ~~[Plugin - Users & Permissions] Integrate providers authentication, email templates and advanced settings~~.
 
 `strapi@alpha.10` *(expected release date: 15/02/2018)*:
-- [Framework] New core API to manage settings in database.
-- [Admin] Refactor the Input component to make it more extensible.
+- ~~[Framework] New core API to manage settings in database~~.
+- ~~[Admin] Refactor the Input component to make it more extensible~~.
 
-`strapi@alpha.11` *(expected release date: 02/03/2018)*:
-- [Plugin] Upload.
+`strapi@alpha.11` *(expected release date: 09/03/2018)*:
+- ~~[Plugin] Upload~~.
 
-`strapi@alpha.12` *(expected release date: 19/03/2018)*:
-- [Plugin] GraphQL.
+Please read our blog to be aware of the roadmap updates:
+
+- [Roadmap Update #1 - File Upload, Rich Text Editor, GraphQL](https://blog.strapi.io/roadmap-update-1-upload-rich-text-editor-graphql/)
