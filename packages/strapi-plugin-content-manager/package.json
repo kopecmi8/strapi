@@ -46,5 +46,8 @@
     "node": ">= 8.0.0",
     "npm": ">= 3.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "react-dropzone": "^4.2.9"
+  }
 }

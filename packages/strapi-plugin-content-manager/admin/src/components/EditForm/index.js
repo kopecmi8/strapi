@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import { findIndex, get, omit, isFunction, merge } from 'lodash';
 
 // Components.
-import Input from 'components/Input';
+import SemanticInput from 'components/SemanticInput';
 
 // Utils.
 import getQueryParameters from 'utils/getQueryParameters';
@@ -43,6 +43,10 @@ class EditForm extends React.Component {
       case 'bigint':
       case 'decimal':
         return 'number';
+      case 'json':
+        return 'json';
+      case 'image':
+        return 'image';
       default:
         return 'text';
     }
@@ -73,7 +77,7 @@ class EditForm extends React.Component {
       }, {});
 
       return (
-        <Input
+        <SemanticInput
           autoFocus={key === 0}
           key={attr}
           type={get(layout, 'type', this.getInputType(details.type))}
