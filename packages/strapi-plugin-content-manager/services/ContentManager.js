@@ -53,6 +53,11 @@ module.exports = {
         return acc;
       }, {});
 
+      //add context and type
+      let model = strapi.plugins['content-manager'].services['contentmanager'].getModel(params, source);
+      values['@context'] = _.get(model, '@context');
+      values['@type'] = _.get(model, '@type');
+
       // Update JSON fields.
       const entry = await strapi.query(params.model, source).create({
         values
@@ -100,6 +105,12 @@ module.exports = {
 
         return acc;
       }, {});
+
+      //add context and type
+      let model = strapi.plugins['content-manager'].services['contentmanager'].getModel(params, source);
+      values['@context'] = _.get(model, '@context');
+      values['@type'] = _.get(model, '@type');
+
 
       // Update JSON fields.
       await strapi.query(params.model, source).update({
@@ -152,37 +163,8 @@ module.exports = {
     });
   },
 
-  getModel: (name, source) => {
-    name = _.toLower(name);
-
-    const model = source ? _.get(strapi.plugins, [source, 'models', name]) : _.get(strapi.models, name);
-
-    // const model = _.get(strapi.models, name);
-
-    const attributes = [];
-    _.forEach(model.attributes, (params, name) => {
-      const relation = _.find(model.associations, { alias: name });
-
-      if (relation) {
-        params = _.omit(params, ['collection', 'model', 'via']);
-        params.target = relation.model || relation.collection;
-        params.key = relation.via;
-        params.nature = relation.nature;
-        params.targetColumnName = _.get((params.plugin ? strapi.plugins[params.plugin].models : strapi.models )[params.target].attributes[params.key], 'columnName', '');
-      }
-
-      attributes.push({
-        name,
-        params
-      });
-    });
-
-    return {
-      name: _.get(model, 'info.name', 'model.name.missing'),
-      description: _.get(model, 'info.description', 'model.description.missing'),
-      connection: model.connection,
-      collectionName: model.collectionName,
-      attributes: attributes
-    };
+  getModel: (params, {source}) => {
+    return (strapi.models[params.model] || strapi.plugins[source].models[params.model]);
   },
+
 };
