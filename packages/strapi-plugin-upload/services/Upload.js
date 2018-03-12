@@ -67,6 +67,10 @@ module.exports = {
   },
 
   add: async (values) => {
+
+    values['@context'] = strapi.plugins.upload.models.file['@context'];
+    values['@type'] = strapi.plugins.upload.models.file['@type'];
+
     // Use Content Manager business logic to handle relation.
     if (strapi.plugins['content-manager']) {
       return await strapi.plugins['content-manager'].services['contentmanager'].add({

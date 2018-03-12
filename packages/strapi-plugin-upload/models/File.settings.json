@@ -7,6 +7,14 @@
   "options": {
     "timestamps": true
   },
+  "@context": {
+    "@vocab": "http://schema.org/",
+    "__v": "http://www.w3.org/2001/XMLSchema#integer",
+    "_id": "http://schema.org/identifier",
+    "mime": "htpp://schema.org/fileFormat",
+    "size": "htpp://schema.org/contentSize"
+  },
+  "@type": "ImageObject",
   "attributes": {
     "name": {
       "type": "string",
