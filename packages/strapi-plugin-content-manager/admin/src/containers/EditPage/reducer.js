@@ -41,9 +41,9 @@ function editPageReducer(state = initialState, action) {
     case GET_DATA_SUCCEEDED:
       return state
         .update('id', () => action.id)
-        .update('initialRecord', () => Map(action.data))
+        .update('initialRecord', () => fromJS(action.data))
         .update('pluginHeaderTitle', () => action.pluginHeaderTitle)
-        .update('record', () => Map(action.data));
+        .update('record', () => fromJS(action.data));
     case INIT_MODEL_PROPS:
       return state
         .update('formValidations', () => List(action.formValidations))

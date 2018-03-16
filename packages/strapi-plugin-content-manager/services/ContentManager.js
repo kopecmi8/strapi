@@ -44,17 +44,41 @@ module.exports = {
         return _.isArray(value) ? value.map(obj => parser(obj)) : value;
       };
 
+      //recursive context finder
+      const context = (value, currentNode) => {
+
+        if(_.get(currentNode, 'type') === 'entity'){
+
+          let values = Object.keys(value).reduce((acc, current) => {
+            if(current != '@context' &&  current != '@type') {
+              acc[current] = context(value[current], _.get(currentNode, ['entity', 'attributes', current]))
+            }
+
+            return acc;
+          }, {});
+
+          values['@context'] = _.get(currentNode, ['entity', '@context']);
+          values['@type'] = _.get(currentNode, ['entity', '@type']);
+          return values;
+
+        }else{
+          return value;
+        }
+      };
+
+      const model = strapi.plugins['content-manager'].services['contentmanager'].getModel(params, source);
       const files = values.files;
 
       // Parse stringify JSON data.
       values = Object.keys(values.fields).reduce((acc, current) => {
-        acc[current] = parser(values.fields[current]);
+        let value = parser(values.fields[current]);
+        const currentNode = _.get(model, ['attributes', current]);
+        acc[current] = context(value, currentNode);
 
         return acc;
       }, {});
 
       //add context and type
-      let model = strapi.plugins['content-manager'].services['contentmanager'].getModel(params, source);
       values['@context'] = _.get(model, '@context');
       values['@type'] = _.get(model, '@type');
 
@@ -97,17 +121,42 @@ module.exports = {
         return _.isArray(value) ? value.map(obj => parser(obj)) : value;
       };
 
+      //recursive context finder
+      const context = (value, currentNode) => {
+
+        if(_.get(currentNode, 'type') === 'entity'){
+
+          let values = Object.keys(value).reduce((acc, current) => {
+            if(current != '@context' &&  current != '@type') {
+              acc[current] = context(value[current], _.get(currentNode, ['entity', 'attributes', current]))
+            }
+
+            return acc;
+          }, {});
+
+          values['@context'] = _.get(currentNode, ['entity', '@context']);
+          values['@type'] = _.get(currentNode, ['entity', '@type']);
+          return values;
+
+        }else{
+          return value;
+        }
+      };
+
+      //model of entity
+      const model = strapi.plugins['content-manager'].services['contentmanager'].getModel(params, source);
       const files = values.files;
+
 
       // Parse stringify JSON data.
       values = Object.keys(values.fields).reduce((acc, current) => {
-        acc[current] = parser(values.fields[current]);
+        let value = parser(values.fields[current]);
+        const currentNode = _.get(model, ['attributes', current]);
+        acc[current] = context(value, currentNode);
 
         return acc;
       }, {});
 
-      //add context and type
-      let model = strapi.plugins['content-manager'].services['contentmanager'].getModel(params, source);
       values['@context'] = _.get(model, '@context');
       values['@type'] = _.get(model, '@type');
 

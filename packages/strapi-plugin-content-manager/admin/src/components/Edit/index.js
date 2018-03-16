@@ -24,7 +24,7 @@ import Input from 'components/InputsIndex';
 
 import styles from './styles.scss';
 
-const getInputType = (type = '') => {
+export const getInputType = (type = '') => {
   switch (type.toLowerCase()) {
     case 'boolean':
       return 'checkbox';
@@ -49,6 +49,8 @@ const getInputType = (type = '') => {
     case 'file':
     case 'files':
       return 'file';
+    case 'entity':
+      return 'entity';
     default:
       return 'text';
   }
@@ -152,6 +154,7 @@ class Edit extends React.PureComponent {
                 selectOptions={get(this.props.attributes, [attr, 'enum'])}
                 placeholder={get(layout, 'placeholder') || details.placeholder}
                 type={get(layout, 'type', getInputType(details.type))}
+                entity={get(this.props.attributes, [attr, 'entity'])}
                 validations={this.getInputValidations(attr)}
                 value={this.props.record[attr]}
               />

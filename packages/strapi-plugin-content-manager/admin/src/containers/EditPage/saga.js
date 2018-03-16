@@ -59,7 +59,13 @@ export function* submit() {
     // Show button loader
     yield put(setLoader());
     const recordCleaned = Object.keys(record).reduce((acc, current) => {
-      const cleanedData = cleanData(record[current], 'value', 'id');
+
+      let cleanedData = cleanData(record[current], 'value', 'id');
+
+      //TODO need to find out better way
+      if(cleanedData === undefined){
+        cleanedData = record[current];
+      }
 
       if (isString(cleanedData) || isNumber(cleanedData)) {
         acc.append(current, cleanedData);

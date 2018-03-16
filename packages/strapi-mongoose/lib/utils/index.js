@@ -44,7 +44,9 @@ module.exports = mongoose => {
         case 'enumeration':
           return 'String';
         case 'json':
-          return 'Mixed';
+          return 'Object';
+        case 'entity':
+          return 'Object';
         default:
 
       }
