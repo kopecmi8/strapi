@@ -4,7 +4,13 @@ module.exports = {
   find: async function (params) {
     return this.query(function(qb) {
       _.forEach(params.where, (where, key) => {
-        qb.where(key, where[0].symbol, where[0].value);
+        if (_.isArray(where.value)) {
+          for (const value in where.value) {
+            qb[value ? 'where' : 'orWhere'](key, where.symbol, where.value[value])
+          }
+        } else {
+          qb.where(key, where.symbol, where.value);
+        }
       });
 
       if (params.sort) {
@@ -140,7 +146,7 @@ module.exports = {
           case 'oneToMany':
           case 'manyToOne':
           case 'manyToMany':
-            if (details.dominant === true) {
+            if (association.nature === 'manyToMany' && details.dominant === true) {
               acc[current] = params.values[current];
             } else if (response[current] && _.isArray(response[current]) && current !== 'id') {
               // Records to add in the relation.

@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import PropTypes from 'prop-types';
-import { get, includes, isEmpty, isObject, toNumber, toString, replace } from 'lodash';
+import { cloneDeep, findIndex, get, includes, isEmpty, isObject, toNumber, toString, replace } from 'lodash';
 import cn from 'classnames';
 
 // You can find these components in either
@@ -30,6 +30,8 @@ import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import getQueryParameters from 'utils/getQueryParameters';
 import { bindLayout } from 'utils/bindLayout';
+import inputValidations from 'utils/inputsValidations';
+
 import { checkFormValidity } from 'utils/formValidations';
 
 // Layout
@@ -54,10 +56,6 @@ import styles from './styles.scss';
 export class EditPage extends React.Component {
   componentDidMount() {
     this.props.initModelProps(this.getModelName(), this.isCreating(), this.getSource(), this.getModelAttributes());
-    this.layout = bindLayout.call(
-      this,
-      get(this.context.plugins.toJS(), `${this.getSource()}.layout`, layout),
-    );
 
     if (!this.isCreating()) {
       const mainField = get(this.getModel(), 'info.mainField') || this.getModel().primaryKey;
@@ -106,10 +104,33 @@ export class EditPage extends React.Component {
   }
 
   /**
+   * Retrive the model's custom layout
+   * @return {[type]} [description]
+   */
+  getLayout = () => (
+    bindLayout.call(this, get(this.context.plugins.toJS(), `${this.getSource()}.layout`, layout))
+  )
+
+  /**
+   *
+   *
+   * @type {[type]}
+   */
+  getAttributeValidations = (name) => get(this.props.editPage.formValidations, [findIndex(this.props.editPage.formValidations, ['name', name]), 'validations'], {})
+
+
+  /**
    * Retrieve the model
    * @type {Object}
    */
   getModel = () => get(this.props.models, ['models', this.getModelName()]) || get(this.props.models, ['plugins', this.getSource(), 'models', this.getModelName()]);
+
+  /**
+   * Retrieve specific attribute
+   * @type {String} name
+   */
+  getModelAttribute = (name) => get(this.getModelAttributes(), name);
+
 
   /**
    * Retrieve the model's attributes
@@ -138,9 +159,35 @@ export class EditPage extends React.Component {
    */
   getSource = () => getQueryParameters(this.props.location.search, 'source');
 
+  handleBlur = ({ target }) => {
+    const defaultValue = get(this.getModelAttribute(target.name), 'default');
+
+    if (isEmpty(target.value) && defaultValue && target.value !== false) {
+      return this.props.changeData({
+        target: {
+          name: `record.${target.name}`,
+          value: defaultValue,
+        },
+      });
+    }
+
+    const errorIndex = findIndex(this.props.editPage.formErrors, ['name', target.name]);
+    const errors = inputValidations(target.value, this.getAttributeValidations(target.name), target.type);
+    const formErrors = cloneDeep(this.props.editPage.formErrors);
+
+    if (errorIndex === -1 && !isEmpty(errors)) {
+      formErrors.push({ name: target.name, errors });
+    } else if (errorIndex !== -1 && isEmpty(errors)) {
+      formErrors.splice(errorIndex, 1);
+    } else if (!isEmpty(errors)) {
+      formErrors.splice(errorIndex, 1, { name: target.name, errors });
+    }
+
+    return this.props.setFormErrors(formErrors);
+  }
+
   handleChange = (e) => {
     let value = e.target.value;
-
     // Check if date
     if (isObject(e.target.value) && e.target.value._isAMomentObject === true) {
       value = moment(e.target.value, 'YYYY-MM-DD HH:mm:ss').format();
@@ -212,7 +259,7 @@ export class EditPage extends React.Component {
 
   render() {
     const { editPage } = this.props;
-    
+
     return (
       <div>
         <form onSubmit={this.handleSubmit}>
@@ -230,8 +277,9 @@ export class EditPage extends React.Component {
                     didCheckErrors={editPage.didCheckErrors}
                     formValidations={editPage.formValidations}
                     formErrors={editPage.formErrors}
-                    layout={this.layout}
+                    layout={this.getLayout()}
                     modelName={this.getModelName()}
+                    onBlur={this.handleBlur}
                     onChange={this.handleChange}
                     record={editPage.record}
                     schema={this.getSchema()}
