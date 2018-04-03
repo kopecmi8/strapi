@@ -8,6 +8,7 @@ import {
   contentTypeActionSucceeded,
   contentTypeFetchSucceeded,
   setButtonLoading,
+  typesFetchSucceeded,
   unsetButtonLoading,
 } from './actions';
 
@@ -15,6 +16,7 @@ import {
   CONNECTIONS_FETCH,
   CONTENT_TYPE_EDIT,
   CONTENT_TYPE_FETCH,
+  TYPES_FETCH,
 } from './constants';
 
 import {
@@ -22,10 +24,12 @@ import {
   makeSelectModifiedDataEdit,
 } from './selectors';
 
+const requestURLBase = '/content-type-builder';
+
 export function* editContentType(action) {
   try {
     const initialContentType = yield select(makeSelectInitialDataEdit());
-    const requestUrl = `/content-type-builder/models/${initialContentType.name}`;
+    const requestUrl = `${requestURLBase}/models/${initialContentType.name}`;
     const body = yield select(makeSelectModifiedDataEdit());
     const opts = {
       method: 'PUT',
@@ -63,7 +67,7 @@ export function* editContentType(action) {
 
 export function* fetchConnections() {
   try {
-    const requestUrl = '/content-type-builder/connections';
+    const requestUrl = `${requestURLBase}/connections`;
     const data = yield call(request, requestUrl, { method: 'GET' });
 
     yield put(connectionsFetchSucceeded(data));
@@ -75,7 +79,7 @@ export function* fetchConnections() {
 
 export function* fetchContentType(action) {
   try {
-    const requestUrl = `/content-type-builder/models/${action.contentTypeName.split('&source=')[0]}`;
+    const requestUrl = `${requestURLBase}/models/${action.contentTypeName.split('&source=')[0]}`;
     const params = {};
     const source = action.contentTypeName.split('&source=')[1];
 
@@ -92,11 +96,20 @@ export function* fetchContentType(action) {
   }
 }
 
+export function* fetchTypes() {
+  const requestURL = `${requestURLBase}/types`;
+  const data = yield call(request, requestURL, { method: 'GET' });
+
+  yield put(typesFetchSucceeded(data));
+}
+
+
 // Individual exports for testing
 function* defaultSaga() {
   yield fork(takeLatest, CONNECTIONS_FETCH, fetchConnections);
   yield fork(takeLatest, CONTENT_TYPE_EDIT, editContentType);
   yield fork(takeLatest, CONTENT_TYPE_FETCH, fetchContentType);
+  yield fork(takeLatest, TYPES_FETCH, fetchTypes);
 }
 
 export default defaultSaga;

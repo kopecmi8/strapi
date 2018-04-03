@@ -22,4 +22,6 @@ export const SET_ATTRIBUTE_FORM_EDIT = 'ContentTypeBuilder/Form/SET_ATTRIBUTE_FO
 export const SET_BUTTON_LOADING = 'ContentTypeBuilder/Form/SET_BUTTON_LOADING';
 export const SET_FORM = 'ContentTypeBuilder/Form/SET_FORM';
 export const SET_FORM_ERRORS = 'ContentTypeBuilder/Form/SET_FORM_ERRORS';
+export const TYPES_FETCH = 'ContentTypeBuilder/Form/TYPES_FETCH';
+export const TYPES_FETCH_SUCCEEDED = 'ContentTypeBuilder/Form/TYPES_FETCH_SUCCEEDED';
 export const UNSET_BUTTON_LOADING = 'ContentTypeBuilder/Form/UNSET_BUTTON_LOADING';

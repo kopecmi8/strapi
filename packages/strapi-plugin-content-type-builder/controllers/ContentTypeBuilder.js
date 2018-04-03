@@ -32,8 +32,39 @@ module.exports = {
     ctx.send({ connections: Service.getConnections() });
   },
 
+  getModelsByType: async ctx => {
+    const Service = strapi.plugins['content-type-builder'].services['contenttypebuilder'];
+    const {type} = ctx.params;
+
+    ctx.send( Service.getModelsByType(type, Service.getModels()));
+  },
+
+  /**
+   * Get available types from Schema.org
+   * @param ctx
+   * @returns {Promise<void>}
+   */
+  getTypes: async ctx => {
+    const Service = strapi.plugins['content-type-builder'].services['contenttypebuilder'];
+    ctx.send({types: Service.getTypes()});
+  },
+
+  /**
+   * Get properties of given type
+   * @param ctx
+   * @returns {Promise<void>}
+   */
+  getProperties: async ctx => {
+    const Service = strapi.plugins['semantic-content-type-builder'].services['semanticcontenttypebuilder'];
+    const { type } = ctx.params;
+
+    const properties = await Service.getProperties(type);
+
+    ctx.send({properties: properties});
+  },
+
   createModel: async ctx => {
-    const { name, description, connection, collectionName, attributes = [], plugin } = ctx.request.body;
+    const {type, name, description, connection, collectionName, attributes = [], plugin } = ctx.request.body;
 
     if (!name) return ctx.badRequest(null, [{ messages: [{ id: 'request.error.name.missing' }] }]);
     if (!_.includes(Service.getConnections(), connection)) return ctx.badRequest(null, [{ messages: [{ id: 'request.error.connection.unknow' }] }]);
@@ -47,8 +78,7 @@ module.exports = {
     }
 
     strapi.reload.isWatching = false;
-
-    await Service.generateAPI(name, description, connection, collectionName, []);
+    await Service.generateAPI(type, name, description, connection, collectionName, []);
 
     const modelFilePath = Service.getModelPath(name, plugin);
 

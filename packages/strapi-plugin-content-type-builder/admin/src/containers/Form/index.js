@@ -58,6 +58,7 @@ import {
   setAttributeFormEdit,
   setForm,
   setFormErrors,
+  typesFetch,
 } from './actions';
 import selectForm from './selectors';
 
@@ -84,6 +85,8 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
   componentDidMount() {
     // Get available db connections
     this.props.connectionsFetch();
+    //Get available Schema.org types
+    this.props.typesFetch();
     this.initComponent(this.props, true);
   }
 
@@ -218,7 +221,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
   }
 
   checkForNestedInput = (item) => {
-    const hasNestedInput = item.items && item.type !== 'select';
+    const hasNestedInput = item.items && item.type !== 'select' && item.type !== 'multiSelect';
     return hasNestedInput;
   }
 
@@ -632,6 +635,7 @@ function mapDispatchToProps(dispatch) {
       setFormErrors,
       storeTemporaryMenu,
       temporaryContentTypeFieldsUpdated,
+      typesFetch,
       updateContentType,
     },
     dispatch
@@ -682,6 +686,8 @@ Form.propTypes = {
   storeTemporaryMenu: PropTypes.func.isRequired,
   temporaryContentTypeFieldsUpdated: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired,
+  types: PropTypes.array,
+  typesFetch: PropTypes.func.isRequired,
   updateContentType: PropTypes.func.isRequired,
 };
 

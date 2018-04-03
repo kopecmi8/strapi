@@ -30,6 +30,8 @@ import {
   SET_BUTTON_LOADING,
   SET_FORM,
   SET_FORM_ERRORS,
+  TYPES_FETCH,
+  TYPES_FETCH_SUCCEEDED,
   UNSET_BUTTON_LOADING,
 } from './constants';
 
@@ -210,6 +212,21 @@ export function setFormErrors(formErrors) {
   return {
     type: SET_FORM_ERRORS,
     formErrors,
+  };
+}
+
+export function typesFetch() {
+  return {
+    type: TYPES_FETCH,
+  };
+}
+
+export function typesFetchSucceeded(data){
+  const types = data.types;
+
+  return {
+    type: TYPES_FETCH_SUCCEEDED,
+    types: types,
   };
 }
 

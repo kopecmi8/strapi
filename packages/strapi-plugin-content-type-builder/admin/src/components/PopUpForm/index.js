@@ -87,7 +87,7 @@ class PopUpForm extends React.Component { // eslint-disable-line react/prefer-st
         inputDescription={inputDescription}
         value={value}
         customBootstrapClass={customBootstrapClass}
-        selectOptions={this.props.selectOptions || []}
+        selectOptions={item.items}
         placeholder={item.placeholder}
         title={item.title}
         errors={errors}

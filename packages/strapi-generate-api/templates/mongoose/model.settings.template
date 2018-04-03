@@ -5,6 +5,7 @@
     "name": "<%= id %>",
     "description": "<%= description %>"
   },
+  "@type": "<%= type %>",
   "options": {
     "timestamps": true
   },

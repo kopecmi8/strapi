@@ -71,6 +71,7 @@
   "form.button.save": "Save",
 
   "form.contentType.item.connections": "Connection",
+  "form.contentType.item.type": "Select type",
   "form.contentType.item.name": "Name",
   "form.contentType.item.name.description": "Content Type names should be singular: {link}",
   "form.contentType.item.name.link.description": "Check out our documentation",

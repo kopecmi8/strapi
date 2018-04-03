@@ -5,7 +5,7 @@
  */
 
 import { fromJS, List, Map } from 'immutable';
-import { findIndex } from 'lodash';
+import { findIndex, isArray } from 'lodash';
 import {
   CHANGE_INPUT,
   CHANGE_INPUT_ATTRIBUTE,
@@ -21,6 +21,7 @@ import {
   SET_FORM,
   SET_FORM_ERRORS,
   SET_BUTTON_LOADING,
+  TYPES_FETCH_SUCCEEDED,
   UNSET_BUTTON_LOADING,
 } from './constants';
 
@@ -40,6 +41,7 @@ const initialState = fromJS({
   modifiedDataEdit: Map(),
   isFormSet: false,
   shouldRefetchContentType: false,
+  types: List(),
   updatedContentType: false,
   showButtonLoading: false,
 });
@@ -115,16 +117,30 @@ function formReducer(state = initialState, action) {
     }
     case SET_BUTTON_LOADING:
       return state.set('showButtonLoading', true);
+    case TYPES_FETCH_SUCCEEDED:
+      return state.set('types', List(action.types))
     case UNSET_BUTTON_LOADING:
       return state.set('showButtonLoading', false);
     case SET_FORM: {
+      //load async select options from states
+      const form = {
+        items: action.form.items.map((item) => {
+          if(item.type == 'select' || item.type == 'multiSelect'){
+            if(!isArray(item.items)){
+              item.items = state.get(item.items).toArray();
+            }
+          }
+          return item;
+        })
+      };
+
       if (state.get('isFormSet')) {
-        return state.set('form', Map(action.form));
+        return state.set('form', Map(form));
       }
 
       return state
         .set('isFormSet', true)
-        .set('form', Map(action.form))
+        .set('form', Map(form))
         .set('formValidations', List(action.formValidations))
         .set('initialData', action.data)
         .set('modifiedData', action.data);

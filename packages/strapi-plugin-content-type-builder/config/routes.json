@@ -50,6 +50,22 @@
     },
     {
       "method": "GET",
+      "path": "/models/type/:type",
+      "handler": "ContentTypeBuilder.getModelsByType",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/types",
+      "handler": "ContentTypeBuilder.getTypes",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
       "path": "/autoReload",
       "handler": "ContentTypeBuilder.autoReload",
       "config": {

@@ -9,7 +9,19 @@
           "name": "connection",
           "type": "select",
           "value": "default",
-          "items": [{}],
+          "items": "selectOptions",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "label": {
+            "id": "content-type-builder.form.contentType.item.type"
+          },
+          "name": "type",
+          "type": "multiSelect",
+          "value": "",
+          "items": "types",
           "validations": {
             "required": true
           }

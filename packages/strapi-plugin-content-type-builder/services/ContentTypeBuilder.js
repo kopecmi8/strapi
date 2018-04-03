@@ -4,6 +4,8 @@ const path = require('path')
 const fs = require('fs');
 const _ = require('lodash');
 const generator = require('strapi-generate');
+const superagent = require('superagent');
+const SchemaOrg = require('schema.org');
 
 module.exports = {
   getModels: () => {
@@ -18,7 +20,8 @@ module.exports = {
         icon: 'fa-cube',
         name: _.get(model, 'info.name', 'model.name.missing'),
         description: _.get(model, 'info.description', 'model.description.missing'),
-        fields: _.keys(model.attributes).length
+        fields: _.keys(model.attributes).length,
+        '@type': _.get(model, '@type'),
       });
     });
 
@@ -82,7 +85,30 @@ module.exports = {
     return _.keys(strapi.config.currentEnvironment.database.connections);
   },
 
-  generateAPI: (name, description, connection, collectionName, attributes) => {
+  getModelsByType: (type, models) => {
+
+    return models.filter((model) => {
+
+      if(_.get(model, '@type') == 'http://schema.org/'+type){
+        return model;
+      }
+    });
+
+  },
+
+  getTypes: () => {
+
+    let schemaOrg = new SchemaOrg();
+    const types = schemaOrg.getSubClasses('Thing', true);
+
+    let typesArray = [];
+    types.forEach(v => typesArray.push({label: v, value: 'http://schema.org/'+v}));
+
+    return typesArray;
+
+  },
+
+  generateAPI: (type, name, description, connection, collectionName, attributes) => {
     const template = _.get(strapi.config.currentEnvironment, `database.connections.${connection}.connector`, 'strapi-mongoose').split('-')[1];
 
     return new Promise((resolve, reject) => {
@@ -92,6 +118,7 @@ module.exports = {
         rootPath: strapi.config.appPath,
         args: {
           api: name,
+          type: type,
           description: _.replace(description, /\"/g, '\\"'),
           attributes,
           connection,
