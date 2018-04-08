@@ -18,6 +18,7 @@ import {
   DELETE_ATTRIBUTE,
   MODEL_FETCH_SUCCEEDED,
   POST_CONTENT_TYPE_SUCCEEDED,
+  PROPERTIES_FETCH_SUCCEEDED,
   RESET_SHOW_BUTTONS_PROPS,
   SET_BUTTON_LOADER,
   SUBMIT_ACTION_SUCCEEDED,
@@ -34,6 +35,7 @@ const initialState = fromJS({
     attributes: List(),
   }),
   postContentTypeSuccess: false,
+  properties: List(),
   showButtons: false,
   modelLoading: true,
   showButtonLoader: false,
@@ -115,6 +117,8 @@ function modelPageReducer(state = initialState, action) {
         .setIn(['initialModel', 'attributes'], List(action.model.model.attributes));
     case POST_CONTENT_TYPE_SUCCEEDED:
       return state.set('postContentTypeSuccess', !state.get('postContentTypeSuccess'));
+    case PROPERTIES_FETCH_SUCCEEDED:
+      return state.set('properties', fromJS(action.properties));
     case RESET_SHOW_BUTTONS_PROPS:
       return state.set('showButtons', false);
     case SET_BUTTON_LOADER:

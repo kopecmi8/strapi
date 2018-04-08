@@ -6,7 +6,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { get, isEmpty, isFunction } from 'lodash';
+import { isEmpty, isFunction } from 'lodash';
 import cn from 'classnames';
 
 // Design
@@ -27,14 +27,6 @@ class InputMultiSelectWithErrors extends React.Component {
       this.setState({ errors });
     }
 
-    if (isEmpty(this.props.value) && this.props.validations.required === true) {
-      const target = {
-        type: 'select',
-        name: this.props.name,
-        value: get(this.props.selectOptions, ['0', 'value']) || get(this.props.selectOptions, ['0']),
-      };
-      this.props.onChange({ target });
-    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -46,8 +38,8 @@ class InputMultiSelectWithErrors extends React.Component {
     }
   }
 
-  handleBlur = ({ target }) => {
-    if (!isEmpty(target.value)) {
+  handleBlur = () => {
+    if (!isEmpty(this.props.value)) {
       this.setState({ errors: [] });
     }
   }
@@ -59,7 +51,6 @@ class InputMultiSelectWithErrors extends React.Component {
       customBootstrapClass,
       deactivateErrorHighlight,
       disabled,
-      errors,
       errorsClassName,
       errorsStyle,
       inputClassName,
@@ -74,6 +65,7 @@ class InputMultiSelectWithErrors extends React.Component {
       onBlur,
       onChange,
       onFocus,
+      placeholder,
       selectOptions,
       style,
       tabIndex,
@@ -81,12 +73,13 @@ class InputMultiSelectWithErrors extends React.Component {
     } = this.props;
 
     return (
-      <div className={cn(
-        styles.containerSelect,
-        customBootstrapClass,
-        !isEmpty(className) && className,
-      )}
-           style={style}
+      <div
+        className={cn(
+          styles.containerSelect,
+          customBootstrapClass,
+          !isEmpty(className) && className,
+        )}
+        style={style}
       >
         <Label
           className={labelClassName}
@@ -104,6 +97,7 @@ class InputMultiSelectWithErrors extends React.Component {
           onBlur={isFunction(onBlur) ? onBlur : this.handleBlur}
           onChange={onChange}
           onFocus={onFocus}
+          placeholder={placeholder}
           selectOptions={selectOptions}
           style={inputStyle}
           tabIndex={tabIndex}
@@ -144,6 +138,7 @@ InputMultiSelectWithErrors.defaultProps = {
   labelStyle: {},
   onBlur: false,
   onFocus: () => {},
+  placeholder: '',
   selectOptions: [],
   style: {},
   tabIndex: '0',
@@ -189,6 +184,7 @@ InputMultiSelectWithErrors.propTypes = {
   ]),
   onChange: PropTypes.func.isRequired,
   onFocus: PropTypes.func,
+  placeholder: PropTypes.string,
   selectOptions: PropTypes.arrayOf(
     PropTypes.oneOfType([
       PropTypes.shape({
@@ -202,7 +198,7 @@ InputMultiSelectWithErrors.propTypes = {
   ).isRequired,
   style: PropTypes.object,
   tabIndex: PropTypes.string,
-  validation: PropTypes.object,
+  validations: PropTypes.object,
   value: PropTypes.string.isRequired,
 };
 

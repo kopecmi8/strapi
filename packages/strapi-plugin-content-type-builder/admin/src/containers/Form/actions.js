@@ -30,6 +30,8 @@ import {
   SET_BUTTON_LOADING,
   SET_FORM,
   SET_FORM_ERRORS,
+  SET_PROPERTY,
+  SET_RANGE,
   TYPES_FETCH,
   TYPES_FETCH_SUCCEEDED,
   UNSET_BUTTON_LOADING,
@@ -144,14 +146,14 @@ export function resetIsFormSet() {
   };
 }
 
-export function setAttributeForm(hash) {
-  const data = setAttributeFormData(hash);
+export function setAttributeForm(hash, property) {
+  const data = setAttributeFormData(hash, property);
   const attributeRelation = Map({
-    name: '',
+    name: property,
     params: Map({
       columnName: '',
       target: '',
-      targetColumnName: "",
+      targetColumnName: '',
       key: '',
       nature: 'oneToOne',
       required: false,
@@ -185,6 +187,21 @@ export function setAttributeFormEdit(hash, contentType) {
     form,
     attribute,
     formValidations,
+  };
+}
+
+export function setProperty({target}){
+
+  return {
+    type: SET_PROPERTY,
+    property: target.value,
+  };
+}
+
+export function setRange({target}){
+  return {
+    type: SET_RANGE,
+    range: target.value,
   };
 }
 
@@ -254,7 +271,7 @@ function getDataFromForm(form) {
   return data;
 }
 
-function setAttributeFormData(hash) {
+function setAttributeFormData(hash, property) {
   const hashArray = hash.split('::');
   const formType = replace(hashArray[1], 'attribute', '');
   const settingsType = hashArray[2];
@@ -267,7 +284,7 @@ function setAttributeFormData(hash) {
   }
 
   const attribute = Map({
-    name: '',
+    name: property,
     params: Map({
       type,
       default: defaultValue,

@@ -55,7 +55,7 @@ module.exports = {
    * @returns {Promise<void>}
    */
   getProperties: async ctx => {
-    const Service = strapi.plugins['semantic-content-type-builder'].services['semanticcontenttypebuilder'];
+    const Service = strapi.plugins['content-type-builder'].services['contenttypebuilder'];
     const { type } = ctx.params;
 
     const properties = await Service.getProperties(type);
@@ -64,7 +64,9 @@ module.exports = {
   },
 
   createModel: async ctx => {
-    const {type, name, description, connection, collectionName, attributes = [], plugin } = ctx.request.body;
+
+    const {name, description, connection, collectionName, attributes = [], plugin } = ctx.request.body;
+    const type = _.get(ctx.request.body, '@type');
 
     if (!name) return ctx.badRequest(null, [{ messages: [{ id: 'request.error.name.missing' }] }]);
     if (!_.includes(Service.getConnections(), connection)) return ctx.badRequest(null, [{ messages: [{ id: 'request.error.connection.unknow' }] }]);

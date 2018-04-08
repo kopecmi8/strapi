@@ -19,6 +19,8 @@ import {
   MODEL_FETCH,
   MODEL_FETCH_SUCCEEDED,
   POST_CONTENT_TYPE_SUCCEEDED,
+  PROPERTIES_FETCH,
+  PROPERTIES_FETCH_SUCCEEDED,
   SET_BUTTON_LOADER,
   SUBMIT,
   SUBMIT_ACTION_SUCCEEDED,
@@ -120,7 +122,7 @@ export function modelFetch(modelName) {
 
 export function modelFetchSucceeded(data) {
   const model = data;
-  const defaultKeys = ['required', 'unique', 'type', 'key', 'target', 'nature', 'targetColumnName', 'columnName', 'multiple', 'default'];
+  const defaultKeys = ['required', 'unique', 'type', 'key', 'target', 'nature', 'targetColumnName', 'columnName', 'multiple', 'default', 'label'];
 
   forEach(model.model.attributes, (attribute, index) => {
     map(attribute.params, (value, key) => {
@@ -140,6 +142,21 @@ export function modelFetchSucceeded(data) {
 export function postContentTypeSucceeded() {
   return {
     type: POST_CONTENT_TYPE_SUCCEEDED,
+  };
+}
+
+export function propertiesFetch(){
+  return {
+    type: PROPERTIES_FETCH,
+  };
+}
+
+export function propertiesFetchSucceeded(data){
+  const properties = data.properties;
+
+  return {
+    type: PROPERTIES_FETCH_SUCCEEDED,
+    properties: properties,
   };
 }
 

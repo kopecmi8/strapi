@@ -4,6 +4,7 @@ const path = require('path')
 const fs = require('fs');
 const _ = require('lodash');
 const generator = require('strapi-generate');
+const jsonld = require('jsonld');
 const superagent = require('superagent');
 const SchemaOrg = require('schema.org');
 
@@ -73,6 +74,7 @@ module.exports = {
     });
 
     return {
+      '@type': _.get(model, '@type'),
       name: _.get(model, 'info.name', 'model.name.missing'),
       description: _.get(model, 'info.description', 'model.description.missing'),
       connection: model.connection,
@@ -108,6 +110,44 @@ module.exports = {
 
   },
 
+  getProperties: async (type) => {
+
+    const response = await superagent.get('https://schema.org/' + type).set('Accept', 'application/ld+json');
+
+    const jsonValue = JSON.parse(response.text);
+
+    const expanded = await jsonld.expand(jsonValue);
+
+    const properties = expanded.filter(property => {
+      const type = _.get(property, '@type');
+      if (type && type.includes('http://www.w3.org/1999/02/22-rdf-syntax-ns#Property')) {
+        return property;
+      }
+
+    }).map(property => {
+
+      const ranges = _.get(property, 'http://schema.org/rangeIncludes').map((range) => {
+        return _.get(range, '@id');
+      });
+
+      const labels = _.get(property, 'http://www.w3.org/2000/01/rdf-schema#label').map((label) => {
+        return _.get(label, '@value');
+      });
+
+
+      const p = {
+        '@id': _.get(property, '@id'),
+        'label': (labels.length === 1 ? labels[0] : labels),
+        'rangeIncludes': (ranges.length === 1 ? ranges[0] : ranges)
+      };
+
+      return p;
+    });
+
+    return properties;
+
+  },
+
   generateAPI: (type, name, description, connection, collectionName, attributes) => {
     const template = _.get(strapi.config.currentEnvironment, `database.connections.${connection}.connector`, 'strapi-mongoose').split('-')[1];
 
@@ -118,9 +158,9 @@ module.exports = {
         rootPath: strapi.config.appPath,
         args: {
           api: name,
-          type: type,
           description: _.replace(description, /\"/g, '\\"'),
           attributes,
+          type,
           connection,
           collectionName: !_.isEmpty(collectionName) ? collectionName : undefined,
           tpl: template

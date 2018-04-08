@@ -75,7 +75,7 @@ function validate(value, validations) {
         }
         break;
       case 'required':
-        if (value.length === 0) {
+        if (value === null || (value != null && value.length === 0)) {
           errors.push({ id: 'content-type-builder.error.validation.required' });
         }
         break;

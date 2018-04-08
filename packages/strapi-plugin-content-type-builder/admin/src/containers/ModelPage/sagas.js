@@ -22,12 +22,13 @@ import { temporaryContentTypePosted } from 'containers/App/actions';
 
 import { storeData } from '../../utils/storeData';
 
-import { CHECK_IF_TABLE_EXISTS, MODEL_FETCH, SUBMIT } from './constants';
+import {CHECK_IF_TABLE_EXISTS, MODEL_FETCH, PROPERTIES_FETCH, SUBMIT} from './constants';
 import {
   checkIfTableExistsSucceeded,
   modelFetchSucceeded,
   postContentTypeSucceeded,
   resetShowButtonsProps,
+  propertiesFetchSucceeded,
   setButtonLoader,
   unsetButtonLoader,
   submitActionSucceeded,
@@ -61,6 +62,11 @@ export function* fetchModel(action) {
 
     const data = yield call(request, requestUrl, { method: 'GET', params });
 
+    const propertiesRequestURL = `/content-type-builder/properties/${replace(get(data, ['model', '@type']), 'http://schema.org/', '')}`;
+    const propertiesData = yield call(request, propertiesRequestURL, { method: 'GET' });
+
+    yield put(propertiesFetchSucceeded(propertiesData));
+
     yield put(modelFetchSucceeded(data));
 
     yield put(unsetButtonLoader());
@@ -68,6 +74,15 @@ export function* fetchModel(action) {
   } catch(error) {
     strapi.notification.error('notification.error');
   }
+}
+
+export function* fetchProperties() {
+  const model = yield select(makeSelectModel());
+
+  const requestURL = `/content-type-builder/properties/${replace(get(model, '@type'), 'http://schema.org/', '')}`;
+  const data = yield call(request, requestURL, { method: 'GET' });
+
+  yield put(propertiesFetchSucceeded(data));
 }
 
 export function* submitChanges(action) {
@@ -156,12 +171,14 @@ function* defaultSaga() {
   const loadExistanceTableWatcher = yield fork(takeLatest, CHECK_IF_TABLE_EXISTS, getTableExistance);
   const loadModelWatcher = yield fork(takeLatest, MODEL_FETCH, fetchModel);
   const loadSubmitChanges = yield fork(takeLatest, SUBMIT, submitChanges);
+  const loadProperties = yield  fork(takeLatest, PROPERTIES_FETCH, fetchProperties);
 
   yield take(LOCATION_CHANGE);
 
   yield cancel(loadExistanceTableWatcher);
   yield cancel(loadModelWatcher);
   yield cancel(loadSubmitChanges);
+  yield cancel(loadProperties);
 }
 
 export default defaultSaga;

@@ -39,6 +39,7 @@ import {
   deleteAttribute,
   modelFetch,
   modelFetchSucceeded,
+  propertiesFetch,
   resetShowButtonsProps,
   submit,
 } from './actions';
@@ -149,6 +150,7 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
     if (storeData.getIsModelTemporary() && get(storeData.getContentType(), 'name') === props.match.params.modelName) {
       this.setState({ contentTypeTemporary: true });
       this.props.modelFetchSucceeded({ model: storeData.getContentType() });
+      this.props.propertiesFetch();
     } else {
       this.setState({ contentTypeTemporary: false });
       this.props.modelFetch(props.match.params.modelName);
@@ -165,7 +167,7 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
 
   handleClickAddAttribute = () => {
     // Open the modal
-    router.push(`/plugins/content-type-builder/models/${this.props.match.params.modelName}#choose::attributes`);
+    router.push(`/plugins/content-type-builder/models/${this.props.match.params.modelName}#properties`);
   }
 
   handleDelete = (attributeName) => {
@@ -337,6 +339,7 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
           contentTypeData={this.props.modelPage.model}
           isModelPage
           modelLoading={this.props.modelPage.modelLoading}
+          properties={this.props.modelPage.properties}
         />
       </div>
     );
@@ -359,6 +362,7 @@ ModelPage.propTypes = {
   modelFetch: PropTypes.func.isRequired,
   modelFetchSucceeded: PropTypes.func.isRequired,
   modelPage: PropTypes.object.isRequired,
+  propertiesFetch: PropTypes.func.isRequired,
   resetShowButtonsProps: PropTypes.func.isRequired,
   submit: PropTypes.func.isRequired,
   updatedContentType: PropTypes.bool.isRequired,
@@ -378,6 +382,7 @@ function mapDispatchToProps(dispatch) {
       deleteAttribute,
       modelFetch,
       modelFetchSucceeded,
+      propertiesFetch,
       resetShowButtonsProps,
       submit,
     },

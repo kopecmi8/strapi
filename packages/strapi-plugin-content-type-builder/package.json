@@ -26,9 +26,9 @@
     "jsonld": "^1.0.1",
     "pluralize": "^7.0.0",
     "react-select": "^1.2.1",
+    "schema.org": "^3.1.0",
     "strapi-generate": "3.0.0-alpha.11.2",
     "strapi-generate-api": "3.0.0-alpha.11.2",
-    "schema.org": "^3.1.0",
     "superagent": "^3.8.2"
   },
   "devDependencies": {

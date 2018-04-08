@@ -18,9 +18,11 @@ import {
   RESET_IS_FORM_SET,
   SET_ATTRIBUTE_FORM,
   SET_ATTRIBUTE_FORM_EDIT,
+  SET_BUTTON_LOADING,
   SET_FORM,
   SET_FORM_ERRORS,
-  SET_BUTTON_LOADING,
+  SET_PROPERTY,
+  SET_RANGE,
   TYPES_FETCH_SUCCEEDED,
   UNSET_BUTTON_LOADING,
 } from './constants';
@@ -40,6 +42,8 @@ const initialState = fromJS({
   modifiedData: Map(),
   modifiedDataEdit: Map(),
   isFormSet: false,
+  property: '',
+  range: '',
   shouldRefetchContentType: false,
   types: List(),
   updatedContentType: false,
@@ -88,7 +92,10 @@ function formReducer(state = initialState, action) {
     case RESET_FORM_ERRORS:
       return state.set('formErrors', List());
     case RESET_IS_FORM_SET:
-      return state.set('isFormSet', false);
+      return state
+        .set('isFormSet', false)
+        .set('property', '')
+        .set('range', '');
     case SET_ATTRIBUTE_FORM: {
       if (state.get('isFormSet')) {
         return state
@@ -118,7 +125,7 @@ function formReducer(state = initialState, action) {
     case SET_BUTTON_LOADING:
       return state.set('showButtonLoading', true);
     case TYPES_FETCH_SUCCEEDED:
-      return state.set('types', List(action.types))
+      return state.set('types', List(action.types));
     case UNSET_BUTTON_LOADING:
       return state.set('showButtonLoading', false);
     case SET_FORM: {
@@ -131,7 +138,7 @@ function formReducer(state = initialState, action) {
             }
           }
           return item;
-        })
+        }),
       };
 
       if (state.get('isFormSet')) {
@@ -149,6 +156,12 @@ function formReducer(state = initialState, action) {
       return state
         .set('formErrors', List(action.formErrors))
         .set('didCheckErrors', !state.get('didCheckErrors'));
+    case SET_PROPERTY:
+      return state
+        .set('property', action.property)
+        .set('range', '');
+    case SET_RANGE:
+      return state.set('range', action.range);
     default:
       return state;
   }

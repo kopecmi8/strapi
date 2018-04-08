@@ -6,7 +6,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isEmpty, isObject, map } from 'lodash';
+import { isEmpty, isObject } from 'lodash';
 import cn from 'classnames';
 
 import Select from 'react-select';
@@ -14,14 +14,18 @@ import styles from './styles.scss';
 
 class InputMultiSelect extends React.Component {
 
-  handleChange = (target) => {
-    if(!target) {
-      target = {
-        value: ''
-      };
-    }
-    target.type = 'multiSelect';
-    target.name = this.props.name;
+  constructor() {
+    super();
+
+    this.handleChange.bind(this);
+  }
+
+  handleChange = (value) => {
+    const target = {
+      type: 'multiSelect',
+      name: this.props.name,
+      value: value,
+    };
 
     this.props.onChange({target: target});
   }
@@ -35,22 +39,28 @@ class InputMultiSelect extends React.Component {
       }
     });
 
+    const wrapperStyle = {
+      marginTop: '.9rem',
+    };
 
     return (
       <Select
         autoFocus={this.props.autoFocus}
         className={cn(
-          !this.props.deactivateErrorHighlight && this.props.error && 'is-invalid',
+          !this.props.deactivateErrorHighlight && this.props.error && 'is-invalid' && styles.Select,
           !isEmpty(this.props.className) && this.props.className,
         )}
+        wrapperStyle={wrapperStyle}
         disabled={this.props.disabled}
         id={this.props.name}
         name={this.props.name}
         onBlur={this.props.onBlur}
-        onChange={this.handleChange.bind(this)}
+        onChange={this.handleChange}
         onFocus={this.props.onFocus}
         options={options}
+        placeholder={this.props.placeholder ? this.props.placeholder : undefined}
         style={this.props.style}
+        simpleValue
         tabIndex={this.props.tabIndex}
         value={this.props.value}
       />
@@ -68,6 +78,7 @@ InputMultiSelect.defaultProps = {
   onFocus: () => {},
   style: {},
   tabIndex: '0',
+  placeholder: '',
 };
 
 InputMultiSelect.propTypes = {
@@ -80,6 +91,7 @@ InputMultiSelect.propTypes = {
   onBlur: PropTypes.func,
   onChange: PropTypes.func.isRequired,
   onFocus: PropTypes.func,
+  placeholder: PropTypes.string,
   selectOptions: PropTypes.arrayOf(
     PropTypes.oneOfType([
       PropTypes.shape({

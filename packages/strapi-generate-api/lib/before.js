@@ -92,7 +92,7 @@ module.exports = (scope, cb) => {
       return _.has(attribute, 'params.type') ? attribute : undefined;
     }
   });
-  
+
   scope.attributes = _.compact(scope.attributes);
 
   // Handle invalid action arguments.
@@ -121,6 +121,9 @@ module.exports = (scope, cb) => {
 
   // Set description
   scope.description = _.has(scope.args, 'description') ? scope.args.description : undefined;
+
+  //Set type
+  scope.type = _.has(scope.args, 'type') ? scope.args.type : 'http://schema.org/Thing';
 
   // Get default connection
   try {

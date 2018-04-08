@@ -6,6 +6,10 @@
     "description": "<%= description %>"
   },
   "@type": "<%= type %>",
+  "@context": {
+    "@vocab": "http://schema.org/",
+    "_id": "http://schema.org/identifier"
+  },
   "options": {
     "timestamps": true
   },

@@ -207,7 +207,6 @@ PopUpForm.propTypes = {
     PropTypes.func,
   ]).isRequired,
   routePath: PropTypes.string,
-  selectOptions: PropTypes.array,
   showLoader: PropTypes.bool,
   toggle: PropTypes.func.isRequired,
   values: PropTypes.object,
@@ -227,7 +226,6 @@ PopUpForm.defaultProps = {
   popUpHeaderNavLinks: [],
   renderCustomPopUpHeader: false,
   routePath: '',
-  selectOptions: [],
   showLoader: false,
   values: {},
 };

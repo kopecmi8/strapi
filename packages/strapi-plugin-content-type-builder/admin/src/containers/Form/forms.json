@@ -18,9 +18,10 @@
           "label": {
             "id": "content-type-builder.form.contentType.item.type"
           },
-          "name": "type",
+          "name": "@type",
           "type": "multiSelect",
           "value": "",
+          "placeholder": "Select type of Entity",
           "items": "types",
           "validations": {
             "required": true
@@ -90,43 +91,53 @@
     "items": [
       {
         "type": "string",
-        "description": "content-type-builder.popUpForm.attributes.string.description"
+        "description": "content-type-builder.popUpForm.attributes.string.description",
+        "ranges": ["http://schema.org/URL", "http://schema.org/Text"]
       },
       {
         "type": "text",
-        "description": "content-type-builder.popUpForm.attributes.text.description"
+        "description": "content-type-builder.popUpForm.attributes.text.description",
+        "ranges": ["http://schema.org/Text"]
       },
       {
         "type": "number",
-        "description": "content-type-builder.popUpForm.attributes.number.description"
+        "description": "content-type-builder.popUpForm.attributes.number.description",
+        "ranges": ["http://schema.org/Number", "http://schema.org/Float", "http://schema.org/Integer"]
       },
       {
         "type": "boolean",
-        "description": "content-type-builder.popUpForm.attributes.boolean.description"
+        "description": "content-type-builder.popUpForm.attributes.boolean.description",
+        "ranges": ["http://schema.org/Boolean", "http://schema.org/False", "http://schema.org/True"]
       },
       {
         "type": "date",
-        "description": "content-type-builder.popUpForm.attributes.date.description"
+        "description": "content-type-builder.popUpForm.attributes.date.description",
+        "ranges": ["http://schema.org/Date", "http://schema.org/DateTime", "http://schema.org/Time"]
       },
       {
         "type": "json",
-        "description": "content-type-builder.popUpForm.attributes.json.description"
+        "description": "content-type-builder.popUpForm.attributes.json.description",
+        "ranges": []
       },
       {
         "type": "email",
-        "description": "content-type-builder.popUpForm.attributes.email.description"
+        "description": "content-type-builder.popUpForm.attributes.email.description",
+        "ranges": ["http://schema.org/Text"]
       },
       {
         "type": "password",
-        "description": "content-type-builder.popUpForm.attributes.password.description"
+        "description": "content-type-builder.popUpForm.attributes.password.description",
+        "ranges": []
       },
       {
         "type": "media",
-        "description": "content-type-builder.popUpForm.attributes.media.description"
+        "description": "content-type-builder.popUpForm.attributes.media.description",
+        "ranges": ["http://schema.org/MediaObject", "http://schema.org/ImageObject", "http://schema.org/VideoObject", "http://schema.org/AudioObject"]
       },
       {
         "type": "relation",
-        "description": "content-type-builder.popUpForm.attributes.relation.description"
+        "description": "content-type-builder.popUpForm.attributes.relation.description",
+        "ranges": ["all"]
       }
     ]
   },
@@ -138,7 +149,7 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.textarea.name"
             },
-            "name": "name",
+            "name": "params.label",
             "type": "string",
             "value": "",
             "validations": {
@@ -235,7 +246,7 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.number.name"
             },
-            "name": "name",
+            "name": "params.label",
             "type": "string",
             "value": "",
             "validations": {
@@ -348,7 +359,7 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.string.name"
             },
-            "name": "name",
+            "name": "params.label",
             "type": "string",
             "value": "",
             "validations": {
@@ -445,7 +456,7 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.string.name"
             },
-            "name": "name",
+            "name": "params.label",
             "type": "string",
             "value": "",
             "validations": {
@@ -542,7 +553,7 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.string.name"
             },
-            "name": "name",
+            "name": "params.label",
             "type": "string",
             "value": "",
             "validations": {
@@ -627,7 +638,7 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.date.name"
             },
-            "name": "name",
+            "name": "params.label",
             "type": "string",
             "value": "",
             "validations": {
@@ -684,7 +695,7 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.boolean.name"
             },
-            "name": "name",
+            "name": "params.label",
             "type": "string",
             "value": "",
             "validations": {
@@ -744,7 +755,7 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.json.name"
             },
-            "name": "name",
+            "name": "params.label",
             "type": "string",
             "value": "",
             "validations": {
@@ -792,7 +803,7 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.media.name"
             },
-            "name": "name",
+            "name": "params.label",
             "type": "string",
             "value": "",
             "validations": {
@@ -851,7 +862,7 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.defineRelation.fieldName"
             },
-            "name": "name",
+            "name": "params.label",
             "type": "string",
             "value": "",
             "placeholder": "content-type-builder.relation.attributeName.placeholder",
