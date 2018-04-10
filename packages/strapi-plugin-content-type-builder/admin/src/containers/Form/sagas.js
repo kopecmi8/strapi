@@ -1,22 +1,30 @@
 import pluralize from 'pluralize';
-import { capitalize, findIndex, get, isEmpty, sortBy } from 'lodash';
+import {capitalize, findIndex, get, isEmpty, replace, sortBy} from 'lodash';
 import { takeLatest, call, put, fork, select } from 'redux-saga/effects';
 import request from 'utils/request';
+
+import {
+  SUBMIT_ACTION_SUCCEEDED,
+} from '../ModelPage/constants';
 
 import {
   connectionsFetchSucceeded,
   contentTypeActionSucceeded,
   contentTypeFetchSucceeded,
+  resetComponent,
   setButtonLoading,
+  setForm,
   typesFetchSucceeded,
+  rangePropertiesFetchSucceeded,
   unsetButtonLoading,
 } from './actions';
 
 import {
-  CONNECTIONS_FETCH,
   CONTENT_TYPE_EDIT,
   CONTENT_TYPE_FETCH,
-  TYPES_FETCH,
+  SET_ATTRIBUTE_FORM,
+  SET_ATTRIBUTE_FORM_EDIT,
+  PREPARE_FORM,
 } from './constants';
 
 import {
@@ -96,20 +104,39 @@ export function* fetchContentType(action) {
   }
 }
 
-export function* fetchTypes() {
-  const requestURL = `${requestURLBase}/types`;
-  const data = yield call(request, requestURL, { method: 'GET' });
+export function* fetchConnectionsAndTypes(action) {
+  const typesRequestURL = `${requestURLBase}/types`;
+  const types = yield call(request, typesRequestURL, { method: 'GET' });
 
-  yield put(typesFetchSucceeded(data));
+  const connectionsRequestUrl = `${requestURLBase}/connections`;
+  const connections = yield call(request, connectionsRequestUrl, { method: 'GET' });
+
+  yield put(connectionsFetchSucceeded(connections));
+
+  yield put(typesFetchSucceeded(types));
+
+  yield put(setForm(action.hash));
 }
 
+export function* fetchRangeProperties(action) {
+  const range = replace(action.attribute.get('params').get('range'), 'http://schema.org/', '');
+  const requestURL = `${requestURLBase}/properties/${range}`;
+  const data = yield call(request, requestURL, { method: 'GET' });
 
-// Individual exports for testing
+  yield put(rangePropertiesFetchSucceeded(data));
+}
+
+export function* resetFormComponent() {
+  yield put(resetComponent());
+}
+
 function* defaultSaga() {
-  yield fork(takeLatest, CONNECTIONS_FETCH, fetchConnections);
   yield fork(takeLatest, CONTENT_TYPE_EDIT, editContentType);
   yield fork(takeLatest, CONTENT_TYPE_FETCH, fetchContentType);
-  yield fork(takeLatest, TYPES_FETCH, fetchTypes);
+  yield fork(takeLatest, SET_ATTRIBUTE_FORM, fetchRangeProperties);
+  yield fork(takeLatest, SET_ATTRIBUTE_FORM_EDIT, fetchRangeProperties);
+  yield fork(takeLatest, PREPARE_FORM, fetchConnectionsAndTypes);
+  yield fork(takeLatest, SUBMIT_ACTION_SUCCEEDED, resetFormComponent);
 }
 
 export default defaultSaga;

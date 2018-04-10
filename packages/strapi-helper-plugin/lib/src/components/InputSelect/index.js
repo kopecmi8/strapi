@@ -34,12 +34,13 @@ function InputSelect(props) {
       tabIndex={props.tabIndex}
       value={props.value}
     >
+      <option value="" disabled>{'... select one'}</option>
       {map(props.selectOptions, (option, key) => {
         if (isObject(option)) {
           return <SelectOption key={key} {...option} />;
         }
 
-        return <option key={key} value={option}>{option}</option>
+        return <option key={key} value={option}>{option}</option>;
       })}
     </select>
   );

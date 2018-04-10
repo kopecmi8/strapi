@@ -2,7 +2,7 @@
   display: flex;
   width: 25.5rem;
   position: relative;
-  padding-top: 4.5rem;
+  padding-top: 3.5rem;
   padding-left: 25px;
   padding-right: 25px;
   justify-content: space-around;
@@ -15,7 +15,7 @@
 .relationNaturePicker::before {
   content: '';
   position: absolute;
-  top: 9.2rem;
+  top: 13.2rem;
   height: 2px;
   width: 100%;
   background-color: #1C5DE7;
@@ -26,7 +26,7 @@
   width: 95%;
   position: absolute;
   word-wrap: break-word;
-  top: 11.8rem;
+  top: 16rem;
   line-height: 1.8rem;
   text-align: center;
   font-size: 1.3rem;

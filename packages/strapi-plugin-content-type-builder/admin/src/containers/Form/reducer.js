@@ -13,7 +13,8 @@ import {
   CONTENT_TYPE_ACTION_SUCCEEDED,
   CONTENT_TYPE_CREATE,
   CONTENT_TYPE_FETCH_SUCCEEDED,
-  REMOVE_CONTENT_TYPE_REQUIRED_ERROR,
+  RANGE_PROPERTIES_FETCH_SUCCEEDED,
+  REMOVE_CONTENT_TYPE_REQUIRED_ERROR, RESET_COMPONENT_STATE,
   RESET_FORM_ERRORS,
   RESET_IS_FORM_SET,
   SET_ATTRIBUTE_FORM,
@@ -31,8 +32,7 @@ import {
 
 const initialState = fromJS({
   didCheckErrors: false,
-  selectOptionsFetchSucceeded: false,
-  selectOptions: List(),
+  connections: List(),
   form: List(),
   formValidations: List(),
   formErrors: List(),
@@ -44,6 +44,7 @@ const initialState = fromJS({
   isFormSet: false,
   property: '',
   range: '',
+  rangeProperties: List(),
   shouldRefetchContentType: false,
   types: List(),
   updatedContentType: false,
@@ -64,8 +65,7 @@ function formReducer(state = initialState, action) {
     }
     case CONNECTIONS_FETCH_SUCCEEDED:
       return state
-        .set('selectOptions', List(action.connections))
-        .set('selectOptionsFetchSucceeded', !state.get('selectOptionsFetchSucceeded'));
+        .set('connections', List(action.connections));
     case CONTENT_TYPE_ACTION_SUCCEEDED:
       return state
         .set('shouldRefetchContentType', !state.get('shouldRefetchContentType'))
@@ -85,17 +85,25 @@ function formReducer(state = initialState, action) {
       return state
         .set('initialDataEdit', action.data)
         .set('modifiedDataEdit', action.data);
+    case RANGE_PROPERTIES_FETCH_SUCCEEDED:
+      return state
+        .set('rangeProperties', action.rangeProperties);
     case REMOVE_CONTENT_TYPE_REQUIRED_ERROR:
       return state
         .update('formErrors', (list) => list.splice(findIndex(state.get('formErrors').toJS(), ['target', 'name']), 1))
         .set('didCheckErrors', !state.get('didCheckErrors'));
+    case RESET_COMPONENT_STATE:
+      return state
+        .set('property', '')
+        .set('range', '');
     case RESET_FORM_ERRORS:
       return state.set('formErrors', List());
     case RESET_IS_FORM_SET:
       return state
         .set('isFormSet', false)
         .set('property', '')
-        .set('range', '');
+        .set('range', '')
+        .set('rangeProperties', List());
     case SET_ATTRIBUTE_FORM: {
       if (state.get('isFormSet')) {
         return state
@@ -142,7 +150,13 @@ function formReducer(state = initialState, action) {
       };
 
       if (state.get('isFormSet')) {
-        return state.set('form', Map(form));
+        if(action['@type'] !== undefined) {
+          return state
+            .set('form', Map(form))
+            .updateIn(['modifiedData', '@type'], () => `http://schema.org/${action['@type']}`);
+        }else{
+          return state.set('form', Map(form));
+        }
       }
 
       return state

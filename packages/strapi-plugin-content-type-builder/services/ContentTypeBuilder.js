@@ -56,7 +56,8 @@ module.exports = {
         if (params.plugin === 'upload' && relation.model || relation.collection === 'file') {
           params = {
             type: 'media',
-            multiple: params.collection ? true : false
+            multiple: params.collection ? true : false,
+            label: params.label,
           };
         } else {
           params = _.omit(params, ['collection', 'model', 'via']);
@@ -64,6 +65,8 @@ module.exports = {
           params.key = relation.via;
           params.nature = relation.nature;
           params.targetColumnName = _.get((params.plugin ? strapi.plugins[params.plugin].models : strapi.models )[params.target].attributes[params.key], 'columnName', '');
+          params.targetLabel =_.get((params.plugin ? strapi.plugins[params.plugin].models : strapi.models )[params.target].attributes[params.key], 'label', '');
+          params.targetRange =_.get((params.plugin ? strapi.plugins[params.plugin].models : strapi.models )[params.target].attributes[params.key], 'range', '');
         }
       }
 
@@ -112,13 +115,10 @@ module.exports = {
 
   getProperties: async (type) => {
 
-    const response = await superagent.get('https://schema.org/' + type).set('Accept', 'application/ld+json');
+    const response = await superagent.get('http://schema.org/' + type).set('Accept', 'application/ld+json');
+    const expanded = await jsonld.expand(JSON.parse(response.text));
 
-    const jsonValue = JSON.parse(response.text);
-
-    const expanded = await jsonld.expand(jsonValue);
-
-    const properties = expanded.filter(property => {
+    return expanded.filter(property => {
       const type = _.get(property, '@type');
       if (type && type.includes('http://www.w3.org/1999/02/22-rdf-syntax-ns#Property')) {
         return property;
@@ -143,8 +143,6 @@ module.exports = {
 
       return p;
     });
-
-    return properties;
 
   },
 
@@ -223,15 +221,18 @@ module.exports = {
           attrs[attribute.name] = {
             [attribute.params.multiple ? 'collection' : 'model']: 'file',
             via,
-            plugin: 'upload'
-          }
+            plugin: 'upload',
+            range: attribute.params.range,
+            label: attribute.params.label,
+          };
         }
       } else if (_.has(attribute, 'params.target')) {
         const relation = attribute.params;
         const attr = {
           required: relation.required,
           columnName: relation.columnName,
-          unique: relation.unique
+          unique: relation.unique,
+          range: relation.range,
         };
 
         switch (relation.nature) {
@@ -247,6 +248,7 @@ module.exports = {
         }
 
         attr.via = relation.key;
+        attr.label = relation.label;
         attr.dominant = relation.dominant;
         attr.plugin = relation.pluginValue;
 
@@ -398,6 +400,8 @@ module.exports = {
             attr.via = name;
             attr.columnName = params.targetColumnName;
             attr.plugin = source;
+            attr.label = params.targetLabel;
+            attr.range = params.targetRange;
 
             modelJSON.attributes[params.key] = attr;
 

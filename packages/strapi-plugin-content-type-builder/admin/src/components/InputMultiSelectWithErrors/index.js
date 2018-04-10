@@ -142,7 +142,6 @@ InputMultiSelectWithErrors.defaultProps = {
   selectOptions: [],
   style: {},
   tabIndex: '0',
-  validations: {},
 };
 
 InputMultiSelectWithErrors.propTypes = {
@@ -198,7 +197,6 @@ InputMultiSelectWithErrors.propTypes = {
   ).isRequired,
   style: PropTypes.object,
   tabIndex: PropTypes.string,
-  validations: PropTypes.object,
   value: PropTypes.string.isRequired,
 };
 

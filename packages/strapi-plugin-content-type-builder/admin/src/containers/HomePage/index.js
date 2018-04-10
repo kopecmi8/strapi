@@ -100,6 +100,7 @@ export class HomePage extends React.Component { // eslint-disable-line react/pre
           routePath={this.props.match.path}
           popUpHeaderNavLinks={this.popUpHeaderNavLinks}
           menuData={this.props.menu}
+          models={this.props.models}
           redirectRoute={`${this.props.match.path}`}
         />
       </div>

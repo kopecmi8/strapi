@@ -104,15 +104,18 @@ class PropertiesForm extends React.Component {
 
 
   render() {
-    const selectOptions = this.props.properties.map((item) => {
-      return {
-        label: item['label'],
-        value: item['@id'],
-      };
-    });
+    const selectOptions = this.props.properties.
+      map((item) => {
+        return {
+          label: item['label'],
+          value: item['@id'],
+        };
+      }).
+      filter((item) => !includes(this.props.usedProperties, item.label) );
+
 
     const rangesSelect = this.props.property ? this.renderRangesSelect() : '';
-    const attributeSelect = this.props.range ? this.renderAttributeSelect() : '';
+    const attributeSelect = this.props.property && this.props.range ? this.renderAttributeSelect() : '';
 
     return (
       <div className='row col-md-12'>
@@ -141,8 +144,9 @@ PropertiesForm.propTypes = {
   modelName: PropTypes.string.isRequired,
   properties: PropTypes.array.isRequired,
   property: PropTypes.string.isRequired,
-  range: PropTypes.string,
+  range: PropTypes.string.isRequired,
   routePath: PropTypes.string.isRequired,
+  usedProperties: PropTypes.array.isRequired,
 };
 
 export default PropertiesForm;

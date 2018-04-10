@@ -6,7 +6,7 @@
 
 /* eslint-disable new-cap */
 
-import { concat, includes, map, forEach, replace } from 'lodash';
+import { concat, includes, map, forEach, replace, cloneDeep } from 'lodash';
 import { Map, List } from 'immutable';
 import { getValidationsFromForm } from '../../utils/formValidations';
 import { storeData } from '../../utils/storeData';
@@ -14,14 +14,15 @@ import { storeData } from '../../utils/storeData';
 import {
   CHANGE_INPUT,
   CHANGE_INPUT_ATTRIBUTE,
-  CONNECTIONS_FETCH,
   CONNECTIONS_FETCH_SUCCEEDED,
   CONTENT_TYPE_ACTION_SUCCEEDED,
   CONTENT_TYPE_CREATE,
   CONTENT_TYPE_EDIT,
   CONTENT_TYPE_FETCH,
   CONTENT_TYPE_FETCH_SUCCEEDED,
+  RANGE_PROPERTIES_FETCH_SUCCEEDED,
   REMOVE_CONTENT_TYPE_REQUIRED_ERROR,
+  RESET_COMPONENT_STATE,
   RESET_DID_FETCH_MODEL_PROP,
   RESET_FORM_ERRORS,
   RESET_IS_FORM_SET,
@@ -32,7 +33,7 @@ import {
   SET_FORM_ERRORS,
   SET_PROPERTY,
   SET_RANGE,
-  TYPES_FETCH,
+  PREPARE_FORM,
   TYPES_FETCH_SUCCEEDED,
   UNSET_BUTTON_LOADING,
 } from './constants';
@@ -58,12 +59,6 @@ export function changeInputAttribute(key, value) {
     firstKey,
     secondKey,
     value,
-  };
-}
-
-export function connectionsFetch() {
-  return {
-    type: CONNECTIONS_FETCH,
   };
 }
 
@@ -122,6 +117,27 @@ export function contentTypeFetchSucceeded(contentType) {
   };
 }
 
+export function prepareForm(hash) {
+  return {
+    type: PREPARE_FORM,
+    hash,
+  };
+}
+
+export function rangePropertiesFetchSucceeded(data) {
+  const rangeProperties = data.properties;
+  return {
+    type: RANGE_PROPERTIES_FETCH_SUCCEEDED,
+    rangeProperties,
+  };
+}
+
+export function resetComponent(){
+  return {
+    type: RESET_COMPONENT_STATE,
+  };
+}
+
 export function removeContentTypeRequiredError() {
   return {
     type: REMOVE_CONTENT_TYPE_REQUIRED_ERROR,
@@ -146,19 +162,22 @@ export function resetIsFormSet() {
   };
 }
 
-export function setAttributeForm(hash, property) {
-  const data = setAttributeFormData(hash, property);
+export function setAttributeForm(hash, property, range, targetRange) {
+  const data = setAttributeFormData(hash, property, range);
   const attributeRelation = Map({
-    name: property,
+    name: replace(property, 'http://schema.org/', ''),
     params: Map({
       columnName: '',
       target: '',
       targetColumnName: '',
+      targetLabel: '',
+      targetRange: targetRange,
       key: '',
       nature: 'oneToOne',
       required: false,
       unique: false,
       dominant: false,
+      range,
     }),
   });
   const attribute = includes(hash, 'attributerelation') ? attributeRelation : data.attribute;
@@ -212,15 +231,20 @@ export function setButtonLoading() {
 }
 
 export function setForm(hash) {
-  const form = forms[hash.split('::')[1]][hash.split('::')[2]];
-  const data = getDataFromForm(forms[hash.split('::')[1]]);
+  const form = cloneDeep(forms[hash.split('::')[1]][hash.split('::')[2]]);
+  let data = getDataFromForm(forms[hash.split('::')[1]]);
   const formValidations = getValidationsFromForm(forms[hash.split('::')[1]], []);
+  const type = hash.split('::')[3];
+  if(type !== undefined){
+    data = data.updateIn(['@type'], () => `http://schema.org/${type}`);
+  }
 
   return {
     type: SET_FORM,
     form,
     data,
     formValidations,
+    '@type': type,
   };
 }
 
@@ -232,11 +256,6 @@ export function setFormErrors(formErrors) {
   };
 }
 
-export function typesFetch() {
-  return {
-    type: TYPES_FETCH,
-  };
-}
 
 export function typesFetchSucceeded(data){
   const types = data.types;
@@ -271,7 +290,7 @@ function getDataFromForm(form) {
   return data;
 }
 
-function setAttributeFormData(hash, property) {
+function setAttributeFormData(hash, property, range) {
   const hashArray = hash.split('::');
   const formType = replace(hashArray[1], 'attribute', '');
   const settingsType = hashArray[2];
@@ -284,9 +303,10 @@ function setAttributeFormData(hash, property) {
   }
 
   const attribute = Map({
-    name: property,
+    name: replace(property, 'http://schema.org/', ''),
     params: Map({
       type,
+      range,
       default: defaultValue,
       required: false,
       unique: false,

@@ -1,5 +1,6 @@
 import { takeLatest, call, put, fork } from 'redux-saga/effects';
 import request from 'utils/request';
+import { SUBMIT_ACTION_SUCCEEDED} from '../ModelPage/constants';
 import { DELETE_CONTENT_TYPE, MODELS_FETCH } from './constants';
 import { modelsFetchSucceeded } from './actions';
 
@@ -36,6 +37,7 @@ export function* fetchModels() {
 function* defaultSaga() {
   yield fork(takeLatest, DELETE_CONTENT_TYPE, deleteContentType);
   yield fork(takeLatest, MODELS_FETCH, fetchModels);
+  yield fork(takeLatest, SUBMIT_ACTION_SUCCEEDED, fetchModels);
 }
 
 export default defaultSaga;

@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
 import { router } from 'app';
 
 // Global selectors
-import { makeSelectMenu } from 'containers/App/selectors';
+import { makeSelectMenu, makeSelectModels } from 'containers/App/selectors';
 import { makeSelectContentTypeUpdated } from 'containers/Form/selectors';
 
 import AttributeRow from 'components/AttributeRow';
@@ -180,9 +180,10 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
   handleEditAttribute = (attributeName) => {
     const index = findIndex(this.props.modelPage.model.attributes, ['name', attributeName]);
     const attribute = this.props.modelPage.model.attributes[index];
+    const paramType =  includes(['integer', 'float', 'decimal'], attribute.params.type) ? 'number' :  attribute.params.type;
 
     // Display a notification if the attribute is not present in the ones that the ctb handles
-    if (!has(attribute.params, 'nature') && !includes(availableAttributes, attribute.params.type)) {
+    if (!has(attribute.params, 'nature') && !includes(availableAttributes, paramType)) {
       return strapi.notification.info('content-type-builder.notification.info.enumeration');
     }
     const settingsType = attribute.params.type ? 'baseSettings' : 'defineRelation';
@@ -334,6 +335,7 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
           routePath={`${redirectRoute}/${this.props.match.params.modelName}`}
           popUpHeaderNavLinks={this.popUpHeaderNavLinks}
           menuData={this.props.menu}
+          models={this.props.models}
           redirectRoute={redirectRoute}
           modelName={this.props.match.params.modelName}
           contentTypeData={this.props.modelPage.model}
@@ -362,6 +364,7 @@ ModelPage.propTypes = {
   modelFetch: PropTypes.func.isRequired,
   modelFetchSucceeded: PropTypes.func.isRequired,
   modelPage: PropTypes.object.isRequired,
+  models: PropTypes.array.isRequired,
   propertiesFetch: PropTypes.func.isRequired,
   resetShowButtonsProps: PropTypes.func.isRequired,
   submit: PropTypes.func.isRequired,
@@ -371,6 +374,7 @@ ModelPage.propTypes = {
 const mapStateToProps = createStructuredSelector({
   menu: makeSelectMenu(),
   modelPage: selectModelPage(),
+  models: makeSelectModels(),
   updatedContentType: makeSelectContentTypeUpdated(),
 });
 

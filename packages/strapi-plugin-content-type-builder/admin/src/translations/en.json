@@ -59,6 +59,7 @@
   "form.attribute.item.requiredField.description": "You won't be able to create an entry if this field is empty",
   "form.attribute.item.uniqueField.description": "You won't be able to create an entry if there is an existing entry with identical content",
   "form.attribute.item.defineRelation.fieldName": "Field name",
+  "form.attribute.item.defineRelation.propertyType": "Property type",
   "form.attribute.item.customColumnName": "Custom column names",
   "form.attribute.item.customColumnName.description": "This is useful to rename database column names in a more comprehensive format for the API's responses",
   "form.attribute.item.number.type": "Number format",
@@ -113,7 +114,7 @@
   "notification.success.contentTypeDeleted": "The Content Type has been deleted",
   "notification.info.enumeration": "This field is not editable for the moment...😮",
 
-  "popUpForm.attributes.string.description": "Titles, names, paragraphs, list of names",
+  "popUpForm.attributes.string.description": "Titles, names, paragraphs",
   "popUpForm.attributes.text.description": "Descriptions, text paragraphs, articles ",
   "popUpForm.attributes.boolean.description": "Yes or no, 1 or 0, true or false",
   "popUpForm.attributes.number.description": "Everything that is number",
@@ -147,6 +148,9 @@
   "popUpForm.navContainer.advanced": "Advanced settings",
 
   "popUpRelation.title": "Relation",
+  "popUpRelation.noEntity.title": "Entity not exist",
+  "popUpRelation.noEntity.description": "Content type of suggested type does not exist yet",
+  "popUpRelation.noEntity.button": "Create new entity",
 
   "popUpWarning.button.cancel": "Cancel",
   "popUpWarning.button.confirm": "Confirm",

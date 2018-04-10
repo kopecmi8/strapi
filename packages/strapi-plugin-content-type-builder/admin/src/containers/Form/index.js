@@ -16,13 +16,13 @@ import {
   get,
   has,
   includes,
+  isArray,
   isEmpty,
   isObject,
   isUndefined,
   map,
   size,
   split,
-  take,
   toNumber,
   replace,
 } from 'lodash';
@@ -49,11 +49,11 @@ import setParallelAttribute, { setTempAttribute } from './utils/setAttribute';
 import {
   changeInput,
   changeInputAttribute,
-  connectionsFetch,
   contentTypeCreate,
   contentTypeEdit,
   contentTypeFetch,
   contentTypeFetchSucceeded,
+  prepareForm,
   removeContentTypeRequiredError,
   resetFormErrors,
   resetIsFormSet,
@@ -63,7 +63,6 @@ import {
   setFormErrors,
   setProperty,
   setRange,
-  typesFetch,
 } from './actions';
 import selectForm from './selectors';
 
@@ -88,10 +87,6 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
   }
 
   componentDidMount() {
-    // Get available db connections
-    this.props.connectionsFetch();
-    //Get available Schema.org types
-    this.props.typesFetch();
     this.initComponent(this.props, true);
   }
 
@@ -454,7 +449,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
       switch (true) {
         case isPopUpAttribute && contentTypeName !== '#choose': {
           if (isCreating) {
-            this.props.setAttributeForm(props.hash, replace(props.property, 'http://schema.org/', ''));
+            this.props.setAttributeForm(props.hash, props.property, props.range, get(props.contentTypeData, '@type'));
           } else if (get(props.contentTypeData, 'name')) {
             this.setState({ popUpTitleEdit: get(props.contentTypeData, ['attributes', split(props.hash, '::')[3], 'name']) });
             this.props.setAttributeFormEdit(props.hash, props.contentTypeData);
@@ -462,7 +457,12 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
           break;
         }
         case includes(props.hash, 'contentType'):
-          this.props.setForm(props.hash);
+          //In firt load get available Connections and Schema.org types and then sets the form
+          if(isEmpty(this.props.types) && isEmpty(this.props.connections)){
+            this.props.prepareForm(props.hash);
+          }else{
+            this.props.setForm(props.hash);
+          }
           break;
         default:
       }
@@ -523,6 +523,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
         property={this.props.property}
         range={this.props.range}
         routePath={this.props.routePath}
+        usedProperties={this.props.contentTypeData.attributes.map((item) => item.name)}
       />
     );
   }
@@ -587,13 +588,43 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
     const noButtons = includes(this.props.hash, '#choose') || includes(this.props.hash, '#properties');
     const buttonSubmitMessage = includes(this.props.hash.split('::')[1], 'contentType') ? 'form.button.save' : 'form.button.continue';
     const renderCustomPopUpHeader = !includes(this.props.hash, '#choose') && includes(this.props.hash, '::attribute') ? this.renderCustomPopUpHeader(popUpTitle) : false;
-    const dropDownItems = take(get(this.props.menuData, ['0', 'items']), size(get(this.props.menuData[0], 'items')) - 1);
     const edit = includes(this.props.hash, '#edit');
-    const selectOptions = includes(this.props.hash, 'attributenumber') ? get(this.props.form, ['items', '1', 'items']) : this.props.selectOptions;
 
     if (includes(popUpFormType, 'relation')) {
       const contentType = this.props.modelName.split('&source=');
       const contentTypeIndex = contentType.length === 2 ? { name: contentType[0], source: contentType[1] } : { name: contentType[0] };
+      const rangeType = get(this.props.modifiedDataAttribute, ['params', 'range']);
+      let dropDownItems = this.props.models.map((model) => {
+        return {
+          'icon': 'fa-caret-square-o-right',
+          'name': model.name,
+          'source': model.source,
+          '@type': model['@type'],
+        };
+      });
+      const contentTypeHeader = get(dropDownItems, [findIndex(dropDownItems, contentTypeIndex)]);
+
+      dropDownItems = dropDownItems.filter((model) => {
+        const type = get(model, '@type');
+        if(type !== undefined) {
+          return rangeType === type;
+        }
+      });
+
+      const contentTypeType = get(this.props.contentTypeData, '@type');
+      const rangeProperties = this.props.rangeProperties.filter((property) => {
+        const ranges = get(property, 'rangeIncludes');
+        if(!isArray(ranges)){
+          return contentTypeType === ranges;
+        }else{
+          return includes(ranges, contentTypeType);
+        }
+      }).map((property) => {
+        return {
+          'label': get(property, 'label'),
+          'value': get(property, 'label'),
+        };
+      });
 
       return (
         <PopUpRelations
@@ -602,11 +633,13 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
           renderCustomPopUpHeader={renderCustomPopUpHeader}
           popUpTitle={popUpTitle}
           routePath={`${this.props.routePath}/${this.props.hash}`}
-          contentType={get(dropDownItems, [findIndex(dropDownItems, contentTypeIndex)])}
+          contentType={contentTypeHeader}
           form={this.props.form}
           showRelation={includes(this.props.hash, 'defineRelation')}
           onChange={this.handleChange}
           values={this.props.modifiedDataAttribute}
+          range={this.props.range}
+          rangeProperties={rangeProperties}
           dropDownItems={dropDownItems}
           onSubmit={this.handleSubmit}
           formErrors={this.props.formErrors}
@@ -627,7 +660,6 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
           popUpHeaderNavLinks={this.props.popUpHeaderNavLinks}
           form={this.props.form}
           values={values}
-          selectOptions={selectOptions}
           onChange={this.handleChange}
           onBlur={this.handleBlur}
           onSubmit={this.handleSubmit}
@@ -667,11 +699,11 @@ function mapDispatchToProps(dispatch) {
       editContentTypeAttributeRelation,
       changeInput,
       changeInputAttribute,
-      connectionsFetch,
       contentTypeCreate,
       contentTypeEdit,
       contentTypeFetch,
       contentTypeFetchSucceeded,
+      prepareForm,
       removeContentTypeRequiredError,
       resetFormErrors,
       resetIsFormSet,
@@ -683,7 +715,6 @@ function mapDispatchToProps(dispatch) {
       setRange,
       storeTemporaryMenu,
       temporaryContentTypeFieldsUpdated,
-      typesFetch,
       updateContentType,
     },
     dispatch
@@ -695,8 +726,9 @@ Form.propTypes = {
   addAttributeToContentType: PropTypes.func.isRequired,
   changeInput: PropTypes.func.isRequired,
   changeInputAttribute: PropTypes.func.isRequired,
-  connectionsFetch: PropTypes.func.isRequired,
+  connections: PropTypes.array.isRequired,
   contentTypeCreate: PropTypes.func.isRequired,
+  contentTypeData: PropTypes.object.isRequired,
   contentTypeEdit: PropTypes.func.isRequired,
   contentTypeFetch: PropTypes.func.isRequired,
   contentTypeFetchSucceeded: PropTypes.func.isRequired,
@@ -715,19 +747,21 @@ Form.propTypes = {
   menuData: PropTypes.array.isRequired,
   modelLoading: PropTypes.bool, // eslint-disable-line react/require-default-props
   modelName: PropTypes.string,
+  models: PropTypes.array.isRequired,
   modifiedData: PropTypes.object.isRequired,
   modifiedDataAttribute: PropTypes.object.isRequired,
   modifiedDataEdit: PropTypes.object.isRequired,
   popUpHeaderNavLinks: PropTypes.array.isRequired,
+  prepareForm: PropTypes.func.isRequired,
   properties: PropTypes.array.isRequired,
-  property: PropTypes.string.isRequired,
+  property: PropTypes.string,
   range: PropTypes.string.isRequired,
+  rangeProperties: PropTypes.array,
   redirectRoute: PropTypes.string.isRequired,
   removeContentTypeRequiredError: PropTypes.func.isRequired,
   resetFormErrors: PropTypes.func.isRequired,
   resetIsFormSet: PropTypes.func.isRequired,
   routePath: PropTypes.string.isRequired,
-  selectOptions: PropTypes.array.isRequired,
   setAttributeForm: PropTypes.func.isRequired,
   setAttributeFormEdit: PropTypes.func.isRequired,
   setForm: PropTypes.func.isRequired,
@@ -739,7 +773,7 @@ Form.propTypes = {
   storeTemporaryMenu: PropTypes.func.isRequired,
   temporaryContentTypeFieldsUpdated: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired,
-  typesFetch: PropTypes.func.isRequired,
+  types: PropTypes.array.isRequired,
   updateContentType: PropTypes.func.isRequired,
 };
 
@@ -748,6 +782,7 @@ Form.defaultProps = {
   modelName: '',
   property: '',
   properties: [],
+  rangeProperties: [],
   range: '',
 };
 
