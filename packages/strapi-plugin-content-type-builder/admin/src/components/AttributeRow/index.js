@@ -22,6 +22,8 @@ import IcoPassword from '../../assets/images/icon_password.png';
 import IcoRelation from '../../assets/images/icon_relation.png';
 import IcoString from '../../assets/images/icon_string.png';
 import IcoText from '../../assets/images/icon_text.png';
+import IcoUrl from '../../assets/images/icon_url.png';
+import IcoEntity from '../../assets/images/icon_entity.png';
 import styles from './styles.scss';
 
 /* eslint-disable jsx-a11y/no-static-element-interactions */
@@ -42,6 +44,8 @@ class AttributeRow extends React.Component { // eslint-disable-line react/prefer
       'decimal': IcoNumber,
       'email': IcoEmail,
       'password': IcoPassword,
+      'url': IcoUrl,
+      'entity': IcoEntity,
       // TODO add Enumeration icon
       'enumeration': IcoJson,
     };

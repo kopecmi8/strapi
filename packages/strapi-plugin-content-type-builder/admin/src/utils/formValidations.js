@@ -1,4 +1,4 @@
-import { forEach, isObject, isArray, map, mapKeys, includes, reject, isEmpty, findIndex, isUndefined } from 'lodash';
+import { forEach, isObject, isArray, map, mapKeys, includes, reject, isEmpty, split, get } from 'lodash';
 
 /* eslint-disable consistent-return */
 export function getValidationsFromForm(form, formValidations) {
@@ -30,19 +30,15 @@ export function getValidationsFromForm(form, formValidations) {
 }
 
 
-export function checkFormValidity(formData, formValidations) {
+export function   checkFormValidity(formData, formValidations) {
   const errors = [];
-  forEach(formData, (value, key) => {
-    const validationValue = formValidations[findIndex(formValidations, ['name', key])];
 
-    if (!isUndefined(validationValue)) {
-      const inputErrors = validate(value, validationValue.validations);
-      if (!isEmpty(inputErrors)) {
-        errors.push({ name: key, errors: inputErrors });
-      }
-
+  formValidations.forEach( (validation) => {
+    const value = get(formData, split(validation.name, '.'));
+    const inputErrors = validate(value, validation.validations);
+    if (!isEmpty(inputErrors)) {
+      errors.push({ name: validation.name, errors: inputErrors });
     }
-
   });
 
   return errors;
@@ -75,7 +71,7 @@ function validate(value, validations) {
         }
         break;
       case 'required':
-        if (value === null || (value != null && value.length === 0)) {
+        if (value === null || value === undefined || (value != null && value.length === 0)) {
           errors.push({ id: 'content-type-builder.error.validation.required' });
         }
         break;

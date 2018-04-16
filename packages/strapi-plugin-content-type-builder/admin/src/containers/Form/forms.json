@@ -92,7 +92,7 @@
       {
         "type": "string",
         "description": "content-type-builder.popUpForm.attributes.string.description",
-        "ranges": ["http://schema.org/URL", "http://schema.org/Text"]
+        "ranges": ["http://schema.org/Text"]
       },
       {
         "type": "text",
@@ -125,6 +125,11 @@
         "ranges": ["http://schema.org/Text"]
       },
       {
+        "type": "url",
+        "description": "content-type-builder.popUpForm.attributes.url.description",
+        "ranges": ["http://schema.org/URL"]
+      },
+      {
         "type": "password",
         "description": "content-type-builder.popUpForm.attributes.password.description",
         "ranges": []
@@ -137,6 +142,11 @@
       {
         "type": "relation",
         "description": "content-type-builder.popUpForm.attributes.relation.description",
+        "ranges": ["all"]
+      },
+      {
+        "type": "entity",
+        "description": "content-type-builder.popUpForm.attributes.entity.description",
         "ranges": ["all"]
       }
     ]
@@ -152,9 +162,7 @@
             "name": "params.label",
             "type": "string",
             "value": "",
-            "validations": {
-              "required": true
-            }
+            "validations": {}
           }
         ]
       },
@@ -249,9 +257,7 @@
             "name": "params.label",
             "type": "string",
             "value": "",
-            "validations": {
-              "required": true
-            }
+            "validations": {}
           },
           {
             "label": {
@@ -362,9 +368,7 @@
             "name": "params.label",
             "type": "string",
             "value": "",
-            "validations": {
-              "required": true
-            }
+            "validations": {}
           }
         ]
       },
@@ -459,9 +463,7 @@
             "name": "params.label",
             "type": "string",
             "value": "",
-            "validations": {
-              "required": true
-            }
+            "validations": {}
           }
         ]
       },
@@ -546,6 +548,49 @@
         ]
       }
     },
+    "url": {
+      "baseSettings": {
+        "items": [
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.url.name"
+            },
+            "name": "params.label",
+            "type": "string",
+            "value": "",
+            "validations": {}
+          }
+        ]
+      },
+      "advancedSettings": {
+        "items": [
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.settings.default"
+            },
+            "name": "params.default",
+            "type": "url",
+            "value": "",
+            "validations": {}
+          },
+          {
+            "title": {
+              "id": "content-type-builder.form.attribute.item.settings.name"
+            },
+            "label": {
+              "id": "content-type-builder.form.attribute.item.requiredField"
+            },
+            "name": "params.required",
+            "type": "checkbox",
+            "value": false,
+            "validations": {},
+            "inputDescription": {
+              "id": "content-type-builder.form.attribute.item.requiredField.description"
+            }
+          }
+        ]
+      }
+    },
     "password": {
       "baseSettings": {
         "items": [
@@ -556,9 +601,7 @@
             "name": "params.label",
             "type": "string",
             "value": "",
-            "validations": {
-              "required": true
-            }
+            "validations": {}
           }
         ]
       },
@@ -641,9 +684,7 @@
             "name": "params.label",
             "type": "string",
             "value": "",
-            "validations": {
-              "required": true
-            }
+            "validations": {}
           }
         ]
       },
@@ -698,9 +739,7 @@
             "name": "params.label",
             "type": "string",
             "value": "",
-            "validations": {
-              "required": true
-            }
+            "validations": {}
           }
         ]
       },
@@ -758,9 +797,7 @@
             "name": "params.label",
             "type": "string",
             "value": "",
-            "validations": {
-              "required": true
-            }
+            "validations": {}
           }
         ]
       },
@@ -806,9 +843,7 @@
             "name": "params.label",
             "type": "string",
             "value": "",
-            "validations": {
-              "required": true
-            }
+            "validations": {}
           },
           {
             "label": {
@@ -938,6 +973,35 @@
           }
         ]
       }
+    },
+    "entity": {
+      "baseSettings": {
+        "items": [
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.entity.name"
+            },
+            "name": "params.label",
+            "type": "string",
+            "value": "",
+            "validations": {}
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.entity.properties"
+            },
+            "name": "params.properties",
+            "type": "multiSelect",
+            "value": "",
+            "multi": true,
+            "items": null,
+            "validations": {
+              "required": true
+            }
+          }
+        ]
+      },
+      "advancedSettings": {}
     }
   }
 }

@@ -12,6 +12,7 @@ import {
   differenceBy,
   get,
   isEmpty,
+  startCase,
 } from 'lodash';
 
 
@@ -60,9 +61,8 @@ class InputEntityWithErrors extends React.Component {
       value,
     } = this.props;
 
-    const labelClass = labelClassName === '' ? styles.labelFile : labelClassName;
+    const labelClass = labelClassName === '' ? styles.label : labelClassName;
     const spacer = isEmpty(inputDescription) ? <InputSpacer /> : <div />;
-
 
     return (
       <div
@@ -83,14 +83,21 @@ class InputEntityWithErrors extends React.Component {
           <span className={styles.labelNumber}>&nbsp;({this.state.label}/{value.length})</span>
         )}
 
-        <div className="row">
+        <div
+          className={cn(
+            styles.inputsContainer,
+            'row',
+          )}
+        >
           {this.orderAttributes(entity.attributes).map((attr) => {
             const details = entity.attributes[attr];
+            const label = !isEmpty(get(details, 'label')) ? get(details, 'label') : startCase(attr);
 
             return (
               <Input
                 type={getInputType(details.type)}
-                label={get(details, 'label')}
+                label={label}
+                labelStyle={{fontSize: '.9em'}}
                 onChange={onChange}
                 name={`${name}.${attr}`}
                 value={value[attr]}

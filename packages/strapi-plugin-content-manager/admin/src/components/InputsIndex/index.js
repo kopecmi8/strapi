@@ -12,6 +12,7 @@ import InputAddonWithErrors from 'components/InputAddonWithErrors';
 import InputCheckboxWithErrors from 'components/InputCheckboxWithErrors';
 import InputDateWithErrors from 'components/InputDateWithErrors';
 import InputEmailWithErrors from 'components/InputEmailWithErrors';
+import InputEntityWithErrors from 'components/InputEntityWithErrors';
 import InputFileWithErrors from 'components/InputFileWithErrors';
 import InputNumberWithErrors from 'components/InputNumberWithErrors';
 import InputSearchWithErrors from 'components/InputSearchWithErrors';
@@ -20,7 +21,7 @@ import InputPasswordWithErrors from 'components/InputPasswordWithErrors';
 import InputTextAreaWithErrors from 'components/InputTextAreaWithErrors';
 import InputTextWithErrors from 'components/InputTextWithErrors';
 import InputToggleWithErrors from 'components/InputToggleWithErrors';
-import InputEntityWithErrors from 'components/InputEntityWithErrors';
+import InputUrlWithErrors from 'components/InputUrlWithErrors';
 
 const DefaultInputError = ({ type }) => <div>Your input type: <b>{type}</b> does not exist</div>;
 
@@ -39,6 +40,7 @@ const inputs = {
   text: InputTextWithErrors,
   textarea: InputTextAreaWithErrors,
   toggle: InputToggleWithErrors,
+  url: InputUrlWithErrors,
 };
 
 function InputsIndex(props) {

@@ -45,6 +45,7 @@ module.exports = mongoose => {
         case 'password':
         case 'string':
         case 'text':
+        case 'url':
           return 'String';
         case 'entity':
           return 'Object';

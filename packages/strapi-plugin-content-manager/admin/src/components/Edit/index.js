@@ -51,6 +51,8 @@ export const getInputType = (type = '') => {
       return 'file';
     case 'entity':
       return 'entity';
+    case 'url':
+      return 'url';
     default:
       return 'text';
   }

@@ -20,6 +20,7 @@ import InputPasswordWithErrors from 'components/InputPasswordWithErrors';
 import InputTextAreaWithErrors from 'components/InputTextAreaWithErrors';
 import InputTextWithErrors from 'components/InputTextWithErrors';
 import InputToggleWithErrors from 'components/InputToggleWithErrors';
+import InputUrlWithErrors from 'components/InputUrlWithErrors';
 import InputMultiSelectWithErrors from 'components/InputMultiSelectWithErrors';
 
 const DefaultInputError = ({ type }) => <div>Your input type: <b>{type}</b> does not exist</div>;
@@ -39,6 +40,7 @@ const inputs = {
   text: InputTextWithErrors,
   textarea: InputTextAreaWithErrors,
   toggle: InputToggleWithErrors,
+  url: InputUrlWithErrors,
 };
 
 function InputsIndex(props) {

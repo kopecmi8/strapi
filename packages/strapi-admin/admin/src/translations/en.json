@@ -90,6 +90,7 @@
   "components.popUpWarning.message": "Are you sure you want to delete this?",
 
   "components.Input.error.validation.email": "This is not an email",
+  "components.Input.error.validation.url": "This is not an URL address",
   "components.Input.error.validation.required": "This value is required.",
   "components.Input.error.validation.regex": "The value not match the regex.",
   "components.Input.error.validation.max": "The value is too high.",

@@ -18,6 +18,8 @@ import IcoNumber from '../../assets/images/icon_number.png';
 import IcoRelation from '../../assets/images/icon_relation.png';
 import IcoString from '../../assets/images/icon_string.png';
 import IcoText from '../../assets/images/icon_text.png';
+import IcoURL from '../../assets/images/icon_url.png';
+import IcoEntity from '../../assets/images/icon_entity.png';
 
 import styles from './styles.scss';
 
@@ -27,6 +29,7 @@ const asset = {
   'boolean': IcoBoolean,
   'date': IcoDate,
   'email': IcoEmail,
+  'url': IcoURL,
   'media': IcoImage,
   'number': IcoNumber,
   'json': IcoJson,
@@ -34,6 +37,7 @@ const asset = {
   'relation': IcoRelation,
   'string': IcoString,
   'text': IcoText,
+  'entity': IcoEntity,
 };
 
 function AttributeCard({ attribute, autoFocus, handleClick, tabIndex }) {

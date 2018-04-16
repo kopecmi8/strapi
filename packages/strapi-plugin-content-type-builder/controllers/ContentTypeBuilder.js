@@ -59,8 +59,6 @@ module.exports = {
     const { type } = ctx.params;
 
     const properties = await Service.getProperties(type);
-    // console.log(rawProperties);
-    // const properties = await Service.parseProperties(rawProperties);
 
     ctx.send({properties: properties});
   },

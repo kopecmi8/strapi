@@ -29,6 +29,16 @@ class PropertiesForm extends React.Component {
       }
     });
 
+    if(this.props.range === 'http://schema.org/Text'){
+      attributes = attributes.filter((attribute) => {
+        if(this.props.property === 'http://schema.org/email') {
+          return includes(attribute.type, 'email');
+        }else{
+          return !includes(attribute.type, 'email');
+        }
+      });
+    }
+
     if (isEmpty(attributes)) {
       attributes = this.props.attributes.filter((attribute) => {
         if (includes(attribute.ranges, 'all')) {

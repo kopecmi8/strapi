@@ -6,6 +6,9 @@
  * @description: A set of functions called "actions" for managing `<%= globalID %>`.
  */
 
+const jsonld = require('jsonld');
+const _ = require('lodash');
+
 module.exports = {
 
   /**
@@ -15,7 +18,13 @@ module.exports = {
    */
 
   find: async (ctx) => {
-    const data = await strapi.services.<%= id %>.fetchAll(ctx.query);
+    let data = await strapi.services.<%= id %>.fetchAll(ctx.query);
+
+    if(_.get(ctx, ['header', 'accept'])  === 'application/n-quads') {
+      data = data.map((value) => {return _.update(_.omit(value, 'id'), '_id', (id) => {return {'@id' : 'http://'+_.get(ctx, ['header', 'host'])+_.get(ctx, ['url'])+'/'+id};})});
+      data = await jsonld.toRDF(data, {format: 'application/n-quads'});
+      ctx.set('content-type', 'application/n-quads');
+    }
 
     // Send 200 `ok`
     ctx.send(data);
@@ -32,7 +41,12 @@ module.exports = {
       return ctx.notFound();
     }
 
-    const data = await strapi.services.<%= id %>.fetch(ctx.params);
+    let data = await strapi.services.<%= id %>.fetch(ctx.params);
+
+    if(_.get(ctx, ['header', 'accept']) === 'application/n-quads') {
+      data = await jsonld.toRDF(_.update(_.omit(data, 'id'), '_id', (id) => {return { '@id' : 'http://'+_.get(ctx, ['header', 'host'])+_.get(ctx, ['url'])};}), {format: 'application/n-quads'});
+      ctx.set('content-type', 'application/n-quads');
+    }
 
     // Send 200 `ok`
     ctx.send(data);

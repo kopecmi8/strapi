@@ -11,9 +11,11 @@
   "attribute.json": "JSON",
   "attribute.media": "Media",
   "attribute.email": "Email",
+  "attribute.url": "URL",
   "attribute.password": "Password",
   "attribute.relation": "Relation",
   "attribute.enumeration": "Enumeration",
+  "attribute.entity": "Entity",
 
   "contentType.temporaryDisplay": "(Not saved)",
   "from": "from",
@@ -60,6 +62,9 @@
   "form.attribute.item.uniqueField.description": "You won't be able to create an entry if there is an existing entry with identical content",
   "form.attribute.item.defineRelation.fieldName": "Field name",
   "form.attribute.item.defineRelation.propertyType": "Property type",
+  "form.attribute.item.url.name": "Name",
+  "form.attribute.item.entity.name": "Name",
+  "form.attribute.item.entity.properties": "Select entity properties",
   "form.attribute.item.customColumnName": "Custom column names",
   "form.attribute.item.customColumnName.description": "This is useful to rename database column names in a more comprehensive format for the API's responses",
   "form.attribute.item.number.type": "Number format",
@@ -86,6 +91,13 @@
   "form.properties.property": "Property",
   "form.properties.range": "Range includes",
   "form.properties.attribute": "Select field type",
+
+  "form.property": "Property {property}",
+  "form.property.label": "Label",
+  "form.property.range": "Range",
+  "form.property.attribute": "Attribute type",
+  "form.property.required": "Required field",
+
 
   "menu.section.contentTypeBuilder.name.plural": "Content Types",
   "menu.section.contentTypeBuilder.name.singular": "Content Type",
@@ -124,6 +136,8 @@
   "popUpForm.attributes.relation.description": "Refers to a Content Type",
   "popUpForm.attributes.email.description": "User's email...",
   "popUpForm.attributes.password.description": "User password...",
+  "popUpForm.attributes.url.description": "URL address",
+  "popUpForm.attributes.entity.description": "Inner entity",
 
   "popUpForm.attributes.string.name": "String",
   "popUpForm.attributes.text.name": "Text",
@@ -135,6 +149,8 @@
   "popUpForm.attributes.relation.name": "Relation",
   "popUpForm.attributes.email.name": "Email",
   "popUpForm.attributes.password.name": "Password",
+  "popUpForm.attributes.url.name": "URL",
+  "popUpForm.attributes.entity.name": "Entity",
   "popUpForm.create": "Add New",
   "popUpForm.edit": "Edit",
   "popUpForm.field": "Field",
@@ -151,6 +167,8 @@
   "popUpRelation.noEntity.title": "Entity not exist",
   "popUpRelation.noEntity.description": "Content type of suggested type does not exist yet",
   "popUpRelation.noEntity.button": "Create new entity",
+
+  "popUpEntity.title": "Entity",
 
   "popUpWarning.button.cancel": "Cancel",
   "popUpWarning.button.confirm": "Confirm",

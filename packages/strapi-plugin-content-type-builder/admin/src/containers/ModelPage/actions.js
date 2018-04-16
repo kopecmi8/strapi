@@ -4,6 +4,7 @@
  *
  */
 import { cloneDeep, findIndex, forEach, get, includes, map, set } from 'lodash';
+import { fromJS } from 'immutable';
 import { storeData } from '../../utils/storeData';
 
 import {
@@ -122,13 +123,16 @@ export function modelFetch(modelName) {
 
 export function modelFetchSucceeded(data) {
   const model = data;
-  const defaultKeys = ['required', 'unique', 'type', 'key', 'target', 'nature', 'targetColumnName', 'targetLabel', 'targetRange', 'columnName', 'multiple', 'default', 'label', 'range'];
+  const defaultKeys = ['required', 'unique', 'type', 'key', 'target', 'nature', 'targetColumnName', 'targetLabel', 'targetRange', 'columnName', 'multiple', 'default', 'label', 'range', 'entity', 'properties'];
 
   forEach(model.model.attributes, (attribute, index) => {
     map(attribute.params, (value, key) => {
       if (!includes(defaultKeys, key) && value) {
         set(model.model.attributes[index].params, `${key}Value`, value);
         set(model.model.attributes[index].params, key, true);
+      }
+      else if(includes('entity', key)){
+        set(model.model.attributes[index].params, key, fromJS(value));
       }
     });
   });

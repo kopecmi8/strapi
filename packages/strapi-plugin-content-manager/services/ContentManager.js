@@ -57,7 +57,9 @@ module.exports = {
             return acc;
           }, {});
 
-          values['@context'] = _.get(currentNode, ['entity', '@context']);
+          if(_.get(currentNode, ['entity', '@context'])) {
+            values['@context'] = _.get(currentNode, ['entity', '@context']);
+          }
           values['@type'] = _.get(currentNode, ['entity', '@type']);
           return values;
 
@@ -134,7 +136,9 @@ module.exports = {
             return acc;
           }, {});
 
-          values['@context'] = _.get(currentNode, ['entity', '@context']);
+          if(_.get(currentNode, ['entity', '@context'])) {
+            values['@context'] = _.get(currentNode, ['entity', '@context']);
+          }
           values['@type'] = _.get(currentNode, ['entity', '@type']);
           return values;
 

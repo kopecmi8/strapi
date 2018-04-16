@@ -10,6 +10,8 @@ const validateInput = (value, inputValidations = {}, type = 'text') => {
   let errors = [];
 
   const emailRegex = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+  const urlRegex = new RegExp(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/);
+
   // handle i18n
   const requiredError = { id: 'components.Input.error.validation.required' };
 
@@ -52,6 +54,10 @@ const validateInput = (value, inputValidations = {}, type = 'text') => {
 
   if (type === 'email' && !emailRegex.test(value)) {
     errors.push({ id: 'components.Input.error.validation.email' });
+  }
+
+  if (type === 'url' && !urlRegex.test(value)) {
+    errors.push({ id: 'components.Input.error.validation.url' });
   }
 
   if (includes(errors, requiredError)) {

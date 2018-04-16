@@ -1,0 +1,25 @@
+.propertyForm{
+  margin-bottom: 1.5rem;
+  padding-top: 2rem;
+  padding-bottom: .5rem;
+  background: #F2F3F4;
+  position: relative;
+}
+
+.propertyLabel{
+  font-size: 1.2em;
+  margin-bottom: 1.5rem;
+}
+
+.closeButton{
+  position: absolute;
+  right: 1.5rem;
+  top: .5rem;
+  font-size: 1.2em;
+
+  &:before{
+    content: '×';
+    font-weight: bold;
+    cursor: pointer;
+  }
+}

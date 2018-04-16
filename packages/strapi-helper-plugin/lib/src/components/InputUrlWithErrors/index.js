@@ -1,6 +1,6 @@
 /**
  *
- * InputMultiSelectWithErrors;
+ * InputUrlWithErrors
  *
  */
 
@@ -13,23 +13,37 @@ import cn from 'classnames';
 import Label from 'components/Label';
 import InputDescription from 'components/InputDescription';
 import InputErrors from 'components/InputErrors';
-import InputMultiSelect from 'components/InputMultiSelect';
+import InputUrl from 'components/InputUrl';
+import InputSpacer from 'components/InputSpacer';
 
-import styles  from './styles.scss';
+// Utils
+import validateInput from 'utils/inputsValidations';
 
-class InputMultiSelectWithErrors extends React.Component {
-  state = { errors: [] };
+import styles from './styles.scss';
+
+class InputUrlWithErrors extends React.Component { // eslint-disable-line react/prefer-stateless-function
+  state = { errors: [], hasInitialValue: false };
 
   componentDidMount() {
-    const { errors } = this.props;
+    const { value, errors } = this.props;
+
+    // Prevent the input from displaying an error when the user enters and leaves without filling it
+    if (!isEmpty(value)) {
+      this.setState({ hasInitialValue: true });
+    }
+
     // Display input error if it already has some
     if (!isEmpty(errors)) {
       this.setState({ errors });
     }
-
   }
 
   componentWillReceiveProps(nextProps) {
+    // Show required error if the input's value is received after the compo is mounted
+    if (!isEmpty(nextProps.value) && !this.state.hasInitialValue) {
+      this.setState({ hasInitialValue: true });
+    }
+
     // Check if errors have been updated during validations
     if (nextProps.didCheckErrors !== this.props.didCheckErrors) {
       // Remove from the state the errors that have already been set
@@ -38,17 +52,21 @@ class InputMultiSelectWithErrors extends React.Component {
     }
   }
 
-  handleBlur = () => {
-    if (!isEmpty(this.props.value)) {
-      this.setState({ errors: [] });
+  /**
+   * Set the errors depending on the validations given to the input
+   * @param  {Object} target
+   */
+  handleBlur = ({ target }) => {
+    // Prevent from displaying error if the input is initially isEmpty
+    if (!isEmpty(target.value) || this.state.hasInitialValue) {
+      const errors = validateInput(target.value, this.props.validations, 'url');
+      this.setState({ errors, hasInitialValue: true });
     }
   }
 
   render() {
     const {
       autoFocus,
-      className,
-      customBootstrapClass,
       deactivateErrorHighlight,
       disabled,
       errorsClassName,
@@ -61,24 +79,29 @@ class InputMultiSelectWithErrors extends React.Component {
       label,
       labelClassName,
       labelStyle,
-      multi,
       name,
+      noErrorsDescription,
       onBlur,
       onChange,
       onFocus,
       placeholder,
-      selectOptions,
       style,
       tabIndex,
       value,
     } = this.props;
+    const handleBlur = isFunction(onBlur) ? onBlur : this.handleBlur;
+
+    let spacer = !isEmpty(inputDescription) ? <InputSpacer /> : <div />;
+
+    if (!noErrorsDescription && !isEmpty(this.state.errors)) {
+      spacer = <div />;
+    }
 
     return (
-      <div
-        className={cn(
-          styles.containerSelect,
-          customBootstrapClass,
-          !isEmpty(className) && className,
+      <div className={cn(
+          styles.containerUrl,
+          this.props.customBootstrapClass,
+          !isEmpty(this.props.className) && this.props.className,
         )}
         style={style}
       >
@@ -88,19 +111,17 @@ class InputMultiSelectWithErrors extends React.Component {
           message={label}
           style={labelStyle}
         />
-        <InputMultiSelect
+        <InputUrl
           autoFocus={autoFocus}
           className={inputClassName}
-          deactivateErrorHighlight={deactivateErrorHighlight}
           disabled={disabled}
+          deactivateErrorHighlight={deactivateErrorHighlight}
           error={!isEmpty(this.state.errors)}
-          multi={multi}
           name={name}
-          onBlur={isFunction(onBlur) ? onBlur : this.handleBlur}
+          onBlur={handleBlur}
           onChange={onChange}
           onFocus={onFocus}
           placeholder={placeholder}
-          selectOptions={selectOptions}
           style={inputStyle}
           tabIndex={tabIndex}
           value={value}
@@ -112,21 +133,24 @@ class InputMultiSelectWithErrors extends React.Component {
         />
         <InputErrors
           className={errorsClassName}
-          errors={this.state.errors}
+          errors={!noErrorsDescription && this.state.errors || []}
           style={errorsStyle}
         />
+        {spacer}
       </div>
     );
   }
 }
 
-InputMultiSelectWithErrors.defaultProps = {
+InputUrlWithErrors.defaultProps = {
   autoFocus: false,
   className: '',
   customBootstrapClass: 'col-md-6',
   deactivateErrorHighlight: false,
   didCheckErrors: false,
   disabled: false,
+  onBlur: false,
+  onFocus: () => {},
   errors: [],
   errorsClassName: '',
   errorsStyle: {},
@@ -138,16 +162,14 @@ InputMultiSelectWithErrors.defaultProps = {
   label: '',
   labelClassName: '',
   labelStyle: {},
-  multi: false,
-  onBlur: false,
-  onFocus: () => {},
-  placeholder: '',
-  selectOptions: [],
+  noErrorsDescription: false,
+  placeholder: 'app.utils.placeholder.defaultMessage',
   style: {},
   tabIndex: '0',
+  validations: {},
 };
 
-InputMultiSelectWithErrors.propTypes = {
+InputUrlWithErrors.propTypes = {
   autoFocus: PropTypes.bool,
   className: PropTypes.string,
   customBootstrapClass: PropTypes.string,
@@ -179,8 +201,8 @@ InputMultiSelectWithErrors.propTypes = {
   ]),
   labelClassName: PropTypes.string,
   labelStyle: PropTypes.object,
-  multi: PropTypes.bool,
   name: PropTypes.string.isRequired,
+  noErrorsDescription: PropTypes.bool,
   onBlur: PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.func,
@@ -188,20 +210,10 @@ InputMultiSelectWithErrors.propTypes = {
   onChange: PropTypes.func.isRequired,
   onFocus: PropTypes.func,
   placeholder: PropTypes.string,
-  selectOptions: PropTypes.arrayOf(
-    PropTypes.oneOfType([
-      PropTypes.shape({
-        id: PropTypes.string,
-        name: PropTypes.string,
-        params: PropTypes.object,
-        value: PropTypes.string.isRequired,
-      }),
-      PropTypes.string,
-    ]),
-  ).isRequired,
   style: PropTypes.object,
   tabIndex: PropTypes.string,
+  validations: PropTypes.object,
   value: PropTypes.string.isRequired,
 };
 
-export default InputMultiSelectWithErrors;
+export default InputUrlWithErrors;

@@ -38,6 +38,7 @@ import AttributeCard from 'components/AttributeCard';
 import InputCheckboxWithNestedInputs from 'components/InputCheckboxWithNestedInputs';
 import PopUpForm from 'components/PopUpForm';
 import PopUpRelations from 'components/PopUpRelations';
+import PopUpEntity from 'components/PopUpEntity';
 import PropertiesForm from 'components/PropertiesForm';
 
 // Utils
@@ -647,6 +648,24 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
           isEditting={edit}
         />
       );
+    }else if(includes(popUpFormType, 'entity')){
+      return (
+        <PopUpEntity
+          attributes={forms.attributesDisplay.items}
+          didCheckErrors={this.props.didCheckErrors}
+          form={this.props.form}
+          formErrors={this.props.formErrors}
+          isOpen={this.state.showModal}
+          onBlur={this.handleBlur}
+          onChange={this.handleChange}
+          onSubmit={this.handleSubmit}
+          popUpTitle={popUpTitle}
+          properties={this.props.rangeProperties}
+          toggle={this.toggle}
+          type={this.props.range}
+          values={values}
+        />
+      );
     }
 
     return (
@@ -728,7 +747,7 @@ Form.propTypes = {
   changeInputAttribute: PropTypes.func.isRequired,
   connections: PropTypes.array.isRequired,
   contentTypeCreate: PropTypes.func.isRequired,
-  contentTypeData: PropTypes.object.isRequired,
+  contentTypeData: PropTypes.object,
   contentTypeEdit: PropTypes.func.isRequired,
   contentTypeFetch: PropTypes.func.isRequired,
   contentTypeFetchSucceeded: PropTypes.func.isRequired,
@@ -778,6 +797,7 @@ Form.propTypes = {
 };
 
 Form.defaultProps = {
+  contentTypeData: {},
   isModelPage: false,
   modelName: '',
   property: '',

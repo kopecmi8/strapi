@@ -54,6 +54,7 @@ class InputMultiSelect extends React.Component {
         disabled={this.props.disabled}
         id={this.props.name}
         name={this.props.name}
+        multi={this.props.multi}
         onBlur={this.props.onBlur}
         onChange={this.handleChange}
         onFocus={this.props.onFocus}
@@ -74,6 +75,7 @@ InputMultiSelect.defaultProps = {
   deactivateErrorHighlight: false,
   disabled: false,
   error: false,
+  multi: false,
   onBlur: () => {},
   onFocus: () => {},
   style: {},
@@ -87,6 +89,7 @@ InputMultiSelect.propTypes = {
   deactivateErrorHighlight: PropTypes.bool,
   disabled: PropTypes.bool,
   error: PropTypes.bool,
+  multi: PropTypes.bool,
   name: PropTypes.string.isRequired,
   onBlur: PropTypes.func,
   onChange: PropTypes.func.isRequired,

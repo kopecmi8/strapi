@@ -52,12 +52,9 @@ export function changeInput(key, value, isEditing) {
 
 export function changeInputAttribute(key, value) {
   const keys = key.split('.');
-  const firstKey = keys[0];
-  const secondKey = keys[1];
   return {
     type: CHANGE_INPUT_ATTRIBUTE,
-    firstKey,
-    secondKey,
+    keys,
     value,
   };
 }

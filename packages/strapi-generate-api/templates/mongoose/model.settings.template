@@ -8,7 +8,11 @@
   "@type": "<%= type %>",
   "@context": {
     "@vocab": "http://schema.org/",
-    "_id": "http://schema.org/identifier"
+    "_id": "http://schema.org/identifier",
+    "id": "http://schema.org/identifier",
+    "__v": null,
+    "createdAt": null,
+    "updatedAt": null
   },
   "options": {
     "timestamps": true
