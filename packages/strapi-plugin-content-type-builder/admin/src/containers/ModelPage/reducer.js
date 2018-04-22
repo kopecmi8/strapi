@@ -16,6 +16,7 @@ import {
   EDIT_CONTENT_TYPE_ATTRIBUTE,
   EDIT_CONTENT_TYPE_ATTRIBUTE_RELATION,
   DELETE_ATTRIBUTE,
+  MODEL_FETCH,
   MODEL_FETCH_SUCCEEDED,
   POST_CONTENT_TYPE_SUCCEEDED,
   PROPERTIES_FETCH_SUCCEEDED,
@@ -38,6 +39,7 @@ const initialState = fromJS({
   properties: List(),
   showButtons: false,
   modelLoading: true,
+  propertiesLoading: false,
   showButtonLoader: false,
   tableExists: true,
 });
@@ -107,6 +109,11 @@ function modelPageReducer(state = initialState, action) {
         .set('showButtons', showButtons)
         .updateIn(['model', 'attributes'], (list) => list.splice(action.position, 1));
     }
+    case MODEL_FETCH:
+      return state
+        .set('modelLoading', true)
+        .set('properties', List())
+        .set('propertiesLoading', true);
     case MODEL_FETCH_SUCCEEDED:
       return state
         .set('didFetchModel', !state.get('didFetchModel'))
@@ -118,7 +125,9 @@ function modelPageReducer(state = initialState, action) {
     case POST_CONTENT_TYPE_SUCCEEDED:
       return state.set('postContentTypeSuccess', !state.get('postContentTypeSuccess'));
     case PROPERTIES_FETCH_SUCCEEDED:
-      return state.set('properties', fromJS(action.properties));
+      return state
+        .set('propertiesLoading', false)
+        .set('properties', fromJS(action.properties));
     case RESET_SHOW_BUTTONS_PROPS:
       return state.set('showButtons', false);
     case SET_BUTTON_LOADER:

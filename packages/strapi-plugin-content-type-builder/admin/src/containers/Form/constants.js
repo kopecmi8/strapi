@@ -13,6 +13,7 @@ export const CONTENT_TYPE_EDIT = 'ContentTypeBuilder/Form/CONTENT_TYPE_EDIT';
 export const CONTENT_TYPE_FETCH = 'ContentTypeBuilder/Form/CONTENT_TYPE_FETCH';
 export const CONTENT_TYPE_FETCH_SUCCEEDED = 'ContentTypeBuilder/Form/CONTENT_TYPE_FETCH_SUCCEEDED';
 export const PREPARE_FORM = 'ContentTypeBuilder/Form/PREPARE_FORM';
+export const RANGE_PROPERTIES_FETCH = 'ContentTypeBuilder/Form/RANGE_PROPERTIES_FETCH';
 export const RANGE_PROPERTIES_FETCH_SUCCEEDED = 'ContentTypeBuilder/Form/RANGE_PROPERTIES_FETCH_SUCCEEDED';
 export const REMOVE_CONTENT_TYPE_REQUIRED_ERROR = 'ContentTypeBuilder/Form/REMOVE_CONTENT_TYPE_REQUIRED_ERROR';
 export const RESET_COMPONENT_STATE = 'ContentTypeBuilder/Form/RESET_COMPONENT_STATE';

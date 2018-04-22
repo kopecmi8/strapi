@@ -58,6 +58,7 @@ module.exports = {
             type: 'media',
             multiple: params.collection ? true : false,
             label: params.label,
+            reverse: params.reverse,
           };
         } else {
           params = _.omit(params, ['collection', 'model', 'via']);
@@ -67,6 +68,7 @@ module.exports = {
           params.targetColumnName = _.get((params.plugin ? strapi.plugins[params.plugin].models : strapi.models )[params.target].attributes[params.key], 'columnName', '');
           params.targetLabel =_.get((params.plugin ? strapi.plugins[params.plugin].models : strapi.models )[params.target].attributes[params.key], 'label', '');
           params.targetRange =_.get((params.plugin ? strapi.plugins[params.plugin].models : strapi.models )[params.target].attributes[params.key], 'range', '');
+          params.targetReverse =_.get((params.plugin ? strapi.plugins[params.plugin].models : strapi.models )[params.target].attributes[params.key], 'reverse', '');
         }
       }
 
@@ -233,6 +235,7 @@ module.exports = {
           columnName: relation.columnName,
           unique: relation.unique,
           range: relation.range,
+          reverse: relation.reverse,
         };
 
         switch (relation.nature) {
@@ -314,6 +317,9 @@ module.exports = {
 
           _.forEach(relationsToDelete, relation => {
             modelJSON.attributes[relation.alias] = undefined;
+            if(modelJSON['@context'][relation.alias]) {
+              modelJSON['@context'][relation.alias] = undefined;
+            }
           });
 
           try {
@@ -402,7 +408,11 @@ module.exports = {
             attr.plugin = source;
             attr.label = params.targetLabel;
             attr.range = params.targetRange;
+            attr.reverse = params.targetReverse;
 
+            if(params.targetReverse) {
+              modelJSON['@context'][params.key] = {'@reverse': name}
+            }
             modelJSON.attributes[params.key] = attr;
 
             try {

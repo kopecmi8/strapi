@@ -61,6 +61,7 @@ class InputMultiSelectWithErrors extends React.Component {
       label,
       labelClassName,
       labelStyle,
+      isLoading,
       multi,
       name,
       onBlur,
@@ -96,6 +97,7 @@ class InputMultiSelectWithErrors extends React.Component {
           error={!isEmpty(this.state.errors)}
           multi={multi}
           name={name}
+          isLoading={isLoading}
           onBlur={isFunction(onBlur) ? onBlur : this.handleBlur}
           onChange={onChange}
           onFocus={onFocus}
@@ -135,6 +137,7 @@ InputMultiSelectWithErrors.defaultProps = {
   inputDescriptionClassName: '',
   inputDescriptionStyle: {},
   inputStyle: {},
+  isLoading: false,
   label: '',
   labelClassName: '',
   labelStyle: {},
@@ -169,6 +172,7 @@ InputMultiSelectWithErrors.propTypes = {
   inputDescriptionClassName: PropTypes.string,
   inputDescriptionStyle: PropTypes.object,
   inputStyle: PropTypes.object,
+  isLoading: PropTypes.bool,
   label: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.func,

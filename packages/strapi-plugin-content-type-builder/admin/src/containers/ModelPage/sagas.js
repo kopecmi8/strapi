@@ -61,13 +61,17 @@ export function* fetchModel(action) {
     }
 
     const data = yield call(request, requestUrl, { method: 'GET', params });
-
-    const propertiesRequestURL = `/content-type-builder/properties/${replace(get(data, ['model', '@type']), 'http://schema.org/', '')}`;
-    const propertiesData = yield call(request, propertiesRequestURL, { method: 'GET' });
-
-    yield put(propertiesFetchSucceeded(propertiesData));
-
     yield put(modelFetchSucceeded(data));
+
+    if(!isEmpty(get(data, ['model', '@type']))) {
+      const propertiesRequestURL = `/content-type-builder/properties/${replace(get(data, ['model', '@type']), 'http://schema.org/', '')}`;
+      const propertiesData = yield call(request, propertiesRequestURL, { method: 'GET' });
+
+      yield put(propertiesFetchSucceeded(propertiesData));
+    }else{
+      yield put(propertiesFetchSucceeded({properties: []}));
+    }
+
 
     yield put(unsetButtonLoader());
 
@@ -115,7 +119,7 @@ export function* submitChanges(action) {
           set(body.attributes[index].params, 'plugin', true);
         }
 
-        if (!value && key !== 'multiple') {
+        if (!value && key !== 'multiple' && key != 'reverse' && key != 'targetReverse') {
           const paramsKey = includes(key, 'Value') ? replace(key,'Value', '') : key;
           unset(body.attributes[index].params, paramsKey);
         }

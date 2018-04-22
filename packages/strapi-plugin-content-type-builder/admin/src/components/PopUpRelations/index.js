@@ -6,7 +6,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { findIndex, get, isEmpty, map, take, takeRight } from 'lodash';
+import { findIndex, get, isEmpty, map, take, takeRight, cloneDeep } from 'lodash';
 import { FormattedMessage } from 'react-intl';
 
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
@@ -15,6 +15,7 @@ import PopUpHeaderNavLink from 'components/PopUpHeaderNavLink';
 import RelationBox from 'components/RelationBox';
 import RelationNaturePicker from 'components/RelationNaturePicker';
 import {router} from 'app';
+import { storeData } from '../../utils/storeData';
 import styles from './styles.scss';
 
 /* eslint-disable jsx-a11y/tabindex-no-positive */
@@ -39,6 +40,16 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
     }
   }
 
+  componentDidUpdate(prevProps){
+    if(isEmpty(prevProps.rangeProperties) && !isEmpty(this.props.rangeProperties)) {
+      this.props.onChange({target: {name: 'params.targetReverse', type: 'text', value: false}});
+    }
+
+    if(isEmpty(this.props.rangeProperties) && this.props.isRangePropertiesFetched){
+      this.props.onChange({target: {name: 'params.targetReverse', type: 'text', value: true}});
+    }
+  }
+
   init = (props) => {
     const target = {
       name: 'params.target',
@@ -60,10 +71,14 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
   }
 
   handleAddContentType = () => {
-    if(!isEmpty(this.props.range)){
-      router.push(`${this.props.routePath.split('#')[0]}#create::contentType::baseSettings::${this.props.range.replace('http://schema.org/', '')}`);
-    }else{
-      router.push(`${this.props.routePath.split('#')[0]}#create::contentType::baseSettings`);
+    if (storeData.getIsModelTemporary()) {
+      strapi.notification.info('content-type-builder.notification.info.contentType.creating.notSaved');
+    }else {
+      if(!isEmpty(this.props.range)){
+        router.push(`${this.props.routePath.split('#')[0]}#create::contentType::baseSettings::${this.props.range.replace('http://schema.org/', '')}`);
+      }else{
+        router.push(`${this.props.routePath.split('#')[0]}#create::contentType::baseSettings`);
+      }
     }
   }
 
@@ -133,9 +148,20 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
       get(this.props.dropDownItems, [findIndex(this.props.dropDownItems, {'name': get(this.props.values, ['params', 'target']), source: get(this.props.values, ['params', 'pluginValue']) })])
       : get(this.props.dropDownItems, [findIndex(this.props.dropDownItems, ['name', get(this.props.values, ['params', 'target'])])]);
 
-    let propertyInput = get(this.props.form, ['items', '2']);
-    if(propertyInput) {
-      propertyInput.items = this.props.rangeProperties;
+    let propertyInput = cloneDeep(get(this.props.form, ['items', '2']));
+    let startInput = cloneDeep(get(this.props.form, ['items', '0']));
+
+    if(this.props.isRangePropertiesFetched) {
+      if(isEmpty(this.props.rangeProperties)){
+        propertyInput = cloneDeep(get(this.props.form, ['items', '4']));
+      }else{
+        propertyInput.items = this.props.rangeProperties;
+      }
+    }
+
+    if(get(this.props.values, ['params', 'reverse'])){
+      propertyInput.disabled = true;
+      startInput.disabled = false;
     }
 
     return (
@@ -147,7 +173,7 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
           contentTypeTargetPlaceholder={get(this.props.values, ['params', 'target'])}
           isFirstContentType
           header={this.props.contentType}
-          input={get(this.props.form, ['items', '0'])}
+          input={startInput}
           labelInput={get(this.props.form, ['items', '1'])}
           value={get(this.props.values, 'name')}
           label={get(this.props.values, ['params', 'label'])}
@@ -156,6 +182,7 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
           didCheckErrors={this.props.didCheckErrors}
           errors={findIndex(this.props.formErrors, ['name', get(this.props.form, ['items', '0', 'name'])]) !== -1 ? this.props.formErrors[findIndex(this.props.formErrors, ['name', get(this.props.form, ['items', '0', 'name'])])].errors : []}
           onCreateContentType={this.handleAddContentType}
+          isLoaded
         />
         <RelationNaturePicker
           selectedIco={get(this.props.values, ['params', 'nature'])}
@@ -178,14 +205,15 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
           errors={findIndex(this.props.formErrors, ['name', get(this.props.form, ['items', '2', 'name'])]) !== -1 ? this.props.formErrors[findIndex(this.props.formErrors, ['name', get(this.props.form, ['items', '2', 'name'])])].errors : []}
           dropDownItems={this.props.dropDownItems}
           onCreateContentType={this.handleAddContentType}
+          isLoaded={this.props.isRangePropertiesFetched}
         />
       </ModalBody>
     );
   }
 
   render() {
-    const loader = this.props.showLoader ?
-      <Button onClick={this.props.onSubmit} type="submit" className={styles.primary} disabled={this.props.showLoader}><p className={styles.saving}><span>.</span><span>.</span><span>.</span></p></Button>
+    const loader = !this.props.isRangePropertiesFetched ?
+      <Button onClick={this.props.onSubmit} type="submit" className={styles.primary} disabled={!this.props.isRangePropertiesFetched}><p className={styles.saving}><span>.</span><span>.</span><span>.</span></p></Button>
       : <Button type="submit" onClick={this.props.onSubmit} className={styles.primary}><FormattedMessage id="content-type-builder.form.button.continue" /></Button>;
     const continueButton = !isEmpty(this.props.dropDownItems) ? loader : '';
 
@@ -234,6 +262,7 @@ PopUpRelations.propTypes = {
   ]).isRequired,
   isEditting: PropTypes.bool,
   isOpen: PropTypes.bool.isRequired,
+  isRangePropertiesFetched: PropTypes.bool.isRequired,
   onChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   popUpTitle: PropTypes.string.isRequired,

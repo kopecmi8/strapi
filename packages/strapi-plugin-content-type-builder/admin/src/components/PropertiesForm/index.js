@@ -71,7 +71,18 @@ class PropertiesForm extends React.Component {
 
 
     if (!isArray(ranges)) {
-      return;
+      return (
+        <Input
+          key='ranges'
+          type='text'
+          onChange={this.props.handleSelectRange}
+          disabled
+          label={{id: 'content-type-builder.form.properties.range'}}
+          name='ranges'
+          value={this.props.range}
+          customBootstrapClass='col-md-6'
+        />
+      );
     }
 
     return (
@@ -83,7 +94,7 @@ class PropertiesForm extends React.Component {
         name='ranges'
         value={this.props.range}
         selectOptions={ranges}
-        customBootstrapClass='col-md-12'
+        customBootstrapClass='col-md-6'
       />
     );
   };
@@ -128,15 +139,16 @@ class PropertiesForm extends React.Component {
     const attributeSelect = this.props.property && this.props.range ? this.renderAttributeSelect() : '';
 
     return (
-      <div className='row col-md-12'>
+      <div className='col-md-12 row'>
         <Input
           key='properties'
           type='multiSelect'
+          isLoading={this.props.showLoader}
           onChange={this.handleSelectProperty}
           label={{id: 'content-type-builder.form.properties.property'}}
           name='properties'
           value={this.props.property}
-          customBootstrapClass='col-md-12'
+          customBootstrapClass='col-md-6'
           selectOptions={selectOptions}
           autoFocus
         />
@@ -153,10 +165,16 @@ PropertiesForm.propTypes = {
   handleSelectRange: PropTypes.func.isRequired,
   modelName: PropTypes.string.isRequired,
   properties: PropTypes.array.isRequired,
-  property: PropTypes.string.isRequired,
-  range: PropTypes.string.isRequired,
+  property: PropTypes.string,
+  range: PropTypes.string,
   routePath: PropTypes.string.isRequired,
+  showLoader: PropTypes.bool.isRequired,
   usedProperties: PropTypes.array.isRequired,
+};
+
+PropertiesForm.defaultProps = {
+  property: '',
+  range: '',
 };
 
 export default PropertiesForm;

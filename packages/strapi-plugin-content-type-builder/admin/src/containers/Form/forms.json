@@ -935,6 +935,18 @@
             "type": "string",
             "value": "",
             "placeholder": "content-type-builder.relation.attributeName.placeholder"
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.defineRelation.propertyType"
+            },
+            "name": "params.key",
+            "type": "string",
+            "value": "",
+            "placeholder": "content-type-builder.relation.attributeName.placeholder",
+            "validations": {
+              "required": true
+            }
           }
         ]
       },

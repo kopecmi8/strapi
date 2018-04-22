@@ -20,6 +20,7 @@ import {
   CONTENT_TYPE_EDIT,
   CONTENT_TYPE_FETCH,
   CONTENT_TYPE_FETCH_SUCCEEDED,
+  RANGE_PROPERTIES_FETCH,
   RANGE_PROPERTIES_FETCH_SUCCEEDED,
   REMOVE_CONTENT_TYPE_REQUIRED_ERROR,
   RESET_COMPONENT_STATE,
@@ -121,6 +122,12 @@ export function prepareForm(hash) {
   };
 }
 
+export function rangePropertiesFetch() {
+  return {
+    type: RANGE_PROPERTIES_FETCH,
+  };
+}
+
 export function rangePropertiesFetchSucceeded(data) {
   const rangeProperties = data.properties;
   return {
@@ -168,10 +175,12 @@ export function setAttributeForm(hash, property, range, targetRange) {
       target: '',
       targetColumnName: '',
       targetLabel: '',
+      targetReverse: false,
       targetRange: targetRange,
       key: '',
       nature: 'oneToOne',
       required: false,
+      reverse: false,
       unique: false,
       dominant: false,
       range,

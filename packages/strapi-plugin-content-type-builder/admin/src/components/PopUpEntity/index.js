@@ -104,6 +104,7 @@ class PopUpEntity extends React.Component {
         placeholder={item.placeholder}
         title={item.title}
         errors={errors}
+        isLoading={this.props.showLoader}
         didCheckErrors={this.props.didCheckErrors}
         autoFocus={key === 0 && item.type !== 'date'}
       />
@@ -192,7 +193,10 @@ class PopUpEntity extends React.Component {
 PopUpEntity.propTypes = {
   attributes: PropTypes.array.isRequired,
   didCheckErrors: PropTypes.bool,
-  form: PropTypes.object.isRequired,
+  form: PropTypes.oneOfType([
+    PropTypes.array,
+    PropTypes.object,
+  ]).isRequired,
   formErrors: PropTypes.oneOfType([
     PropTypes.array,
     PropTypes.object,
@@ -203,7 +207,7 @@ PopUpEntity.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   popUpTitle: PropTypes.string.isRequired,
   properties: PropTypes.array.isRequired,
-  showLoader: PropTypes.bool,
+  showLoader: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
   values: PropTypes.object,

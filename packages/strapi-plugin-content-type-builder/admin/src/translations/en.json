@@ -114,6 +114,7 @@
   "modelPage.contentType.list.relationShipTitle.plural": "relationships",
   "modelPage.contentType.list.relationShipTitle.singular": "relationship",
   "modelPage.attribute.relationWith": "Relation with",
+  "modelPage.loading": "Loading content type ...",
 
   "noTableWarning.description": "Don't forget to create the table `{modelName}` in your database",
   "noTableWarning.infos": "More info",
@@ -167,6 +168,8 @@
   "popUpRelation.noEntity.title": "Entity not exist",
   "popUpRelation.noEntity.description": "Content type of suggested type does not exist yet",
   "popUpRelation.noEntity.button": "Create new entity",
+  "popUpRelation.loading.title": "Loading",
+  "popUpRelation.loading.description": "Waiting for data...",
 
   "popUpEntity.title": "Entity",
 

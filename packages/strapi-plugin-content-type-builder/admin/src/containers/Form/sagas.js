@@ -15,6 +15,7 @@ import {
   setButtonLoading,
   setForm,
   typesFetchSucceeded,
+  rangePropertiesFetch,
   rangePropertiesFetchSucceeded,
   unsetButtonLoading,
 } from './actions';
@@ -119,6 +120,7 @@ export function* fetchConnectionsAndTypes(action) {
 }
 
 export function* fetchRangeProperties(action) {
+  yield put(rangePropertiesFetch());
   const range = replace(action.attribute.get('params').get('range'), 'http://schema.org/', '');
   const requestURL = `${requestURLBase}/properties/${range}`;
   const data = yield call(request, requestURL, { method: 'GET' });

@@ -7,6 +7,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
+import Loader from 'react-loader';
 import { get, isEmpty, map, startCase } from 'lodash';
 import pluralize from 'pluralize';
 import cn from 'classnames';
@@ -143,7 +144,28 @@ class RelationBox extends React.Component { // eslint-disable-line react/prefer-
 
     const dropDown = !isEmpty(this.props.dropDownItems) ? this.renderDropdownMenu() : '';
 
-    if(!isEmpty(this.props.dropDownItems) || this.props.tabIndex === '1' ) {
+    if(!this.props.isLoaded){
+      return (
+        <div className={styles.relationBox}>
+          <div className={styles.headerContainer}>
+            <FormattedMessage id="content-type-builder.popUpRelation.loading.title" />
+          </div>
+          <div
+            className={styles.inputContainer}
+          >
+            <div
+              className={cn(
+                'container-fluid',
+                styles.loading,
+              )}
+            >
+              <Loader loaded={this.props.isLoaded} />
+              <FormattedMessage id="content-type-builder.popUpRelation.loading.description" />
+            </div>
+          </div>
+        </div>
+      );
+    }else if(!isEmpty(this.props.dropDownItems) || this.props.tabIndex === '1' ) {
       return (
         <div className={styles.relationBox}>
           <div className={styles.headerContainer}>
@@ -202,6 +224,7 @@ RelationBox.propTypes = {
   header: PropTypes.object,
   input: PropTypes.object,
   isFirstContentType: PropTypes.bool,
+  isLoaded: PropTypes.bool.isRequired,
   label: PropTypes.string,
   labelInput: PropTypes.object,
   onChange: PropTypes.func.isRequired,

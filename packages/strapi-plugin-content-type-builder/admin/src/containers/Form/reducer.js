@@ -13,6 +13,7 @@ import {
   CONTENT_TYPE_ACTION_SUCCEEDED,
   CONTENT_TYPE_CREATE,
   CONTENT_TYPE_FETCH_SUCCEEDED,
+  RANGE_PROPERTIES_FETCH,
   RANGE_PROPERTIES_FETCH_SUCCEEDED,
   REMOVE_CONTENT_TYPE_REQUIRED_ERROR, RESET_COMPONENT_STATE,
   RESET_FORM_ERRORS,
@@ -42,6 +43,7 @@ const initialState = fromJS({
   modifiedData: Map(),
   modifiedDataEdit: Map(),
   isFormSet: false,
+  isRangePropertiesFetched: false,
   property: '',
   range: '',
   rangeProperties: List(),
@@ -69,6 +71,9 @@ function formReducer(state = initialState, action) {
         .set('shouldRefetchContentType', !state.get('shouldRefetchContentType'))
         .set('initialDataEdit', state.get('modifiedDataEdit'))
         .set('updatedContentType', !state.get('updatedContentType'))
+        // .set('property', '')
+        // .set('rangeProperties', List())
+        // .set('range', '')
         .set('isFormSet', false);
     case CONTENT_TYPE_CREATE: {
       if (action.shouldSetUpdatedContentTypeProp) {
@@ -83,9 +88,14 @@ function formReducer(state = initialState, action) {
       return state
         .set('initialDataEdit', action.data)
         .set('modifiedDataEdit', action.data);
+    case RANGE_PROPERTIES_FETCH:
+      return state
+        .set('rangeProperties', List())
+        .set('isRangePropertiesFetched', false);
     case RANGE_PROPERTIES_FETCH_SUCCEEDED:
       return state
-        .set('rangeProperties', action.rangeProperties);
+        .set('rangeProperties', action.rangeProperties)
+        .set('isRangePropertiesFetched', true);
     case REMOVE_CONTENT_TYPE_REQUIRED_ERROR:
       return state
         .update('formErrors', (list) => list.splice(findIndex(state.get('formErrors').toJS(), ['target', 'name']), 1))
@@ -99,9 +109,7 @@ function formReducer(state = initialState, action) {
     case RESET_IS_FORM_SET:
       return state
         .set('isFormSet', false)
-        .set('property', '')
-        .set('range', '')
-        .set('rangeProperties', List());
+        .set('property', '');
     case SET_ATTRIBUTE_FORM: {
       if (state.get('isFormSet')) {
         return state

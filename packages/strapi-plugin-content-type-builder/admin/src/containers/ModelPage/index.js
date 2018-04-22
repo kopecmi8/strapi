@@ -11,6 +11,7 @@ import { bindActionCreators, compose } from 'redux';
 import { get, has, includes, isEmpty, size, replace, startCase, findIndex } from 'lodash';
 import { FormattedMessage } from 'react-intl';
 import { NavLink } from 'react-router-dom';
+import Loader from 'react-loader';
 import PropTypes from 'prop-types';
 import { router } from 'app';
 
@@ -46,7 +47,7 @@ import {
 
 import saga from './sagas';
 import reducer from './reducer';
-import selectModelPage from './selectors';
+import {selectModelPage, makeSelectModelLoading} from './selectors';
 import styles from './styles.scss';
 
 // Array of attributes that the ctb can handle at the moment
@@ -167,7 +168,11 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
 
   handleClickAddAttribute = () => {
     // Open the modal
-    router.push(`/plugins/content-type-builder/models/${this.props.match.params.modelName}#properties`);
+    if(!this.props.modelPage.propertiesLoading && isEmpty(this.props.modelPage.properties)) {
+      router.push(`/plugins/content-type-builder/models/${this.props.match.params.modelName}#choose::attributes`);
+    }else{
+      router.push(`/plugins/content-type-builder/models/${this.props.match.params.modelName}#properties`);
+    }
   }
 
   handleDelete = (attributeName) => {
@@ -308,24 +313,36 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
               renderCustomLink={this.renderCustomLink}
               addCustomSection={this.addCustomSection}
             />
-
             <div className="col-md-9">
-              <div className={styles.componentsContainer}>
-                <ContentHeader
-                  name={this.props.modelPage.model.name}
-                  description={contentHeaderDescription}
-                  icoType={icoType}
-                  editIcon
-                  editPath={`${redirectRoute}/${this.props.match.params.modelName}#edit${this.props.match.params.modelName}::contentType::baseSettings`}
-                  addButtons={addButtons}
-                  handleSubmit={this.props.submit}
-                  isLoading={this.props.modelPage.showButtonLoader}
-                  buttonsContent={this.contentHeaderButtons}
-
-                />
-                {content}
-                {showNoTableWarning}
-              </div>
+              {!this.props.isModelLoading ? (
+                <div className={styles.componentsContainer}>
+                  <ContentHeader
+                    name={this.props.modelPage.model.name}
+                    description={contentHeaderDescription}
+                    icoType={icoType}
+                    editIcon
+                    editPath={`${redirectRoute}/${this.props.match.params.modelName}#edit${this.props.match.params.modelName}::contentType::baseSettings`}
+                    addButtons={addButtons}
+                    handleSubmit={this.props.submit}
+                    isLoading={this.props.modelPage.showButtonLoader}
+                    buttonsContent={this.contentHeaderButtons}
+                  />
+                  {content}
+                  {showNoTableWarning}
+                </div>
+              ) : (
+                <div className={styles.componentsContainer}>
+                  <Loader
+                    loaded={!this.props.isModelLoading}
+                    color={'#333333'}
+                    top={'45%'}
+                    scale={2}
+                  />
+                  <div className={styles.loading}>
+                    <FormattedMessage id="content-type-builder.modelPage.loading"  />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -358,6 +375,7 @@ ModelPage.propTypes = {
   checkIfTableExists: PropTypes.func.isRequired,
   deleteAttribute: PropTypes.func.isRequired,
   // history: PropTypes.object.isRequired,
+  isModelLoading: PropTypes.bool.isRequired,
   location: PropTypes.object.isRequired,
   match: PropTypes.object.isRequired,
   menu: PropTypes.array.isRequired,
@@ -376,6 +394,7 @@ const mapStateToProps = createStructuredSelector({
   modelPage: selectModelPage(),
   models: makeSelectModels(),
   updatedContentType: makeSelectContentTypeUpdated(),
+  isModelLoading: makeSelectModelLoading(),
 });
 
 function mapDispatchToProps(dispatch) {

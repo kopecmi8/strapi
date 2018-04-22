@@ -437,6 +437,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
 
   initComponent = (props, condition) => {
     if (!isEmpty(props.hash)) {
+      this.props.resetIsFormSet();
       this.setState({ showModal: true });
       const valueToReplace = includes(props.hash, '#create') ? '#create' : '#edit';
       const contentTypeName = replace(split(props.hash, '::')[0], valueToReplace, '');
@@ -520,6 +521,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
         handleSelectProperty={this.props.setProperty}
         handleSelectRange={this.props.setRange}
         modelName={this.props.modelName}
+        showLoader={isEmpty(this.props.properties)}
         properties={this.props.properties}
         property={this.props.property}
         range={this.props.range}
@@ -641,6 +643,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
           values={this.props.modifiedDataAttribute}
           range={this.props.range}
           rangeProperties={rangeProperties}
+          isRangePropertiesFetched={this.props.isRangePropertiesFetched}
           dropDownItems={dropDownItems}
           onSubmit={this.handleSubmit}
           formErrors={this.props.formErrors}
@@ -659,6 +662,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
           onBlur={this.handleBlur}
           onChange={this.handleChange}
           onSubmit={this.handleSubmit}
+          showLoader={!this.props.isRangePropertiesFetched}
           popUpTitle={popUpTitle}
           properties={this.props.rangeProperties}
           toggle={this.toggle}
@@ -763,6 +767,7 @@ Form.propTypes = {
   hash: PropTypes.string.isRequired,
   isFormSet: PropTypes.bool.isRequired,
   isModelPage: PropTypes.bool,
+  isRangePropertiesFetched: PropTypes.bool.isRequired,
   menuData: PropTypes.array.isRequired,
   modelLoading: PropTypes.bool, // eslint-disable-line react/require-default-props
   modelName: PropTypes.string,
