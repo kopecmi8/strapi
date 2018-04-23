@@ -7,13 +7,14 @@
 /* eslint-disable new-cap */
 
 import { concat, includes, map, forEach, replace, cloneDeep } from 'lodash';
-import { Map, List } from 'immutable';
+import { Map, List, fromJS } from 'immutable';
 import { getValidationsFromForm } from '../../utils/formValidations';
 import { storeData } from '../../utils/storeData';
 
 import {
   CHANGE_INPUT,
   CHANGE_INPUT_ATTRIBUTE,
+  CONNECTIONS_FETCH,
   CONNECTIONS_FETCH_SUCCEEDED,
   CONTENT_TYPE_ACTION_SUCCEEDED,
   CONTENT_TYPE_CREATE,
@@ -52,11 +53,18 @@ export function changeInput(key, value, isEditing) {
 }
 
 export function changeInputAttribute(key, value) {
-  const keys = key.split('.');
+  // const keys = key.split('.');
   return {
     type: CHANGE_INPUT_ATTRIBUTE,
-    keys,
+    // keys,
+    keys: ['modifiedDataAttribute'].concat(key.split('.')),
     value,
+  };
+}
+
+export function connectionsFetch() {
+  return {
+    type: CONNECTIONS_FETCH,
   };
 }
 
@@ -204,7 +212,7 @@ export function setAttributeFormEdit(hash, contentType) {
 
   const attribute = Map({
     name: contentTypeAttribute.name,
-    params: Map(contentTypeAttribute.params),
+    params: fromJS(contentTypeAttribute.params),
   });
 
   return {
@@ -311,6 +319,9 @@ function setAttributeFormData(hash, property, range) {
   const attribute = Map({
     name: replace(property, 'http://schema.org/', ''),
     params: Map({
+      appearance: Map({
+        WYSIWYG: false,
+      }),
       type,
       range,
       default: defaultValue,

@@ -59,9 +59,10 @@ function formReducer(state = initialState, action) {
       return state
         .updateIn([action.objectToModify, action.key], () => action.value);
     case CHANGE_INPUT_ATTRIBUTE: {
-      const keys = action.keys;
-      keys.unshift('modifiedDataAttribute');
-      return state.updateIn(keys, () => action.value);
+      return state.updateIn(action.keys, () => action.value);
+      // const keys = action.keys;
+      // keys.unshift('modifiedDataAttribute');
+      // return state.updateIn(keys, () => action.value);
     }
     case CONNECTIONS_FETCH_SUCCEEDED:
       return state

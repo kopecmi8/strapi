@@ -1,12 +1,13 @@
 const _ = require('lodash');
 
 module.exports = {
-  find: async function (params) {
+  find: async function (params, populate) {
     return this
-      .find()
+      .find(params.where)
       .limit(Number(params.limit))
       .sort(params.sort)
-      .skip(Number(params.skip));
+      .skip(Number(params.skip))
+      .populate(populate || this.associations.map(x => x.alias).join(' '));
   },
 
   count: async function (params) {
@@ -14,13 +15,14 @@ module.exports = {
       .count());
   },
 
-  findOne: async function (params, populate) {
-    return this
+  findOne: async function (params, populate, raw = true) {
+    const query = this
       .findOne({
         [this.primaryKey]: params[this.primaryKey] || params.id
       })
-      .populate(populate || this.associations.map(x => x.alias).join(' '))
-      .lean();
+      .populate(populate || this.associations.map(x => x.alias).join(' '));
+
+    return raw ? query.lean() : query;
   },
 
   create: async function (params) {
@@ -90,28 +92,46 @@ module.exports = {
                 strapi.query(details.model || details.collection, details.plugin).findOne({ id : recordId })
                   .then(record => {
                     if (record && _.isObject(record[details.via])) {
-                      return module.exports.update.call(this, {
-                        id: record[details.via][this.primaryKey] || record[details.via].id,
-                        values: {
-                          [current]: null
-                        },
-                        parseRelationships: false
-                      });
+                      virtualFields.push(
+                        module.exports.update.call(this, {
+                          id: record[details.via][this.primaryKey] || record[details.via].id,
+                          values: {
+                            [current]: null
+                          },
+                          parseRelationships: false
+                        })
+                      );
                     }
-
                     return Promise.resolve();
                   })
-              );
+                  .then(response => {
+                    // Updating the new relations
+                    // When params.values[current] is null this means that we are removing the relation.
+                    // Recreate relation on the first side
+                    virtualFields.push(
+                      strapi.query(details.model || details.collection, details.plugin).update({
+                        id: recordId,
+                        values: {
+                          [details.via]: _.isNull(params.values[current]) ? null : value[this.primaryKey] || value.id || value._id
+                        },
+                        parseRelationships: false
+                      })
+                    );
 
-              // Update the record on the other side.
-              // When params.values[current] is null this means that we are removing the relation.
-              virtualFields.push(strapi.query(details.model || details.collection, details.plugin).update({
-                id: recordId,
-                values: {
-                  [details.via]: _.isNull(params.values[current]) ? null : value[this.primaryKey] || value.id || value._id
-                },
-                parseRelationships: false
-              }));
+                    // Recreate relation on the other side if the value is not null
+                    if (!_.isNull(params.values[current])) {
+                      virtualFields.push(
+                        module.exports.update.call(this, {
+                          id: value[this.primaryKey] || value.id || value._id,
+                          values: {
+                            [current]: recordId
+                          },
+                          parseRelationships: false
+                        })
+                      );
+                    }
+                  })
+              );
 
               acc[current] = _.isNull(params.values[current]) ? null : value[current];
             }
@@ -192,37 +212,37 @@ module.exports = {
           case 'manyToManyMorph':
             const transformToArrayID = (array) => {
               if (_.isArray(array)) {
-                return array.map(value => {
-                  if (_.isPlainObject(value)) {
-                    return value._id || value.id;
-                  }
+                  return array.map(value => {
+                    if (_.isPlainObject(value)) {
+                      return value._id || value.id;
+                    }
 
-                  return value;
-                })
-              }
+                    return value;
+                  })
+                }
 
-              if (association.type === 'model') {
-                return _.isEmpty(array) ? [] : transformToArrayID([array]);
-              }
+                if (association.type === 'model') {
+                  return _.isEmpty(array) ? [] : transformToArrayID([array]);
+                }
 
-              return [];
-            };
+                return [];
+              };
 
-            // Compare array of ID to find deleted files.
-            const currentValue = transformToArrayID(response[current]).map(id => id.toString());
-            const storedValue = transformToArrayID(params.values[current]).map(id => id.toString());
+              // Compare array of ID to find deleted files.
+              const currentValue = transformToArrayID(response[current]).map(id => id.toString());
+              const storedValue = transformToArrayID(params.values[current]).map(id => id.toString());
 
-            const toAdd = _.difference(storedValue, currentValue);
-            const toRemove = _.difference(currentValue, storedValue);
+              const toAdd = _.difference(storedValue, currentValue);
+              const toRemove = _.difference(currentValue, storedValue);
 
-            // Remove relations in the other side.
-            toAdd.forEach(id => {
-              virtualFields.push(strapi.query(details.model || details.collection, details.plugin).addRelationMorph({
-                id,
-                alias: association.via,
-                ref: this.globalId,
-                refId: response._id,
-                field: association.alias
+              // Remove relations in the other side.
+              toAdd.forEach(id => {
+                virtualFields.push(strapi.query(details.model || details.collection, details.plugin).addRelationMorph({
+                  id,
+                  alias: association.via,
+                  ref: this.globalId,
+                  refId: response._id,
+                  field: association.alias
               }));
             });
 
@@ -283,18 +303,18 @@ module.exports = {
       However the upload doesn't need this method. It only uses the `removeRelationMorph`.
     */
 
-    const entry = await module.exports.findOne.call(this, params, []);
-    const value = entry[params.alias] || [];
+    const entry = (await module.exports.findOne.call(this, params, [], false)).toJSON();
+    const value = [];
 
     // Retrieve association.
-    const association = this.associations.find(association => association.via === params.alias)[0];
+    const association = this.associations.find(association => association.alias === params.alias);
 
     if (!association) {
       throw Error(`Impossible to create relationship with ${params.ref} (${params.refId})`);
     }
 
     // Resolve if the association is already existing.
-    const isExisting = entry[params.alias].find(obj => {
+    const isExisting = value.find(obj => {
       if (obj.kind === params.ref && obj.ref.toString() === params.refId.toString() && obj.field === params.field) {
         return true;
       }
@@ -309,9 +329,10 @@ module.exports = {
 
     // Push new relation to the association array.
     value.push({
-      ref: params.refId,
+      ref: params.ref,
+      refId: params.refId,
       kind: params.ref,
-      field: association.filter
+      field: params.field
     });
 
     entry[params.alias] = value;

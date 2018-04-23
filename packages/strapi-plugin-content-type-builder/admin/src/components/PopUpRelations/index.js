@@ -74,6 +74,7 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
     if (storeData.getIsModelTemporary()) {
       strapi.notification.info('content-type-builder.notification.info.contentType.creating.notSaved');
     }else {
+      this.props.resetIsFormSet();
       if(!isEmpty(this.props.range)){
         router.push(`${this.props.routePath.split('#')[0]}#create::contentType::baseSettings::${this.props.range.replace('http://schema.org/', '')}`);
       }else{
@@ -268,6 +269,7 @@ PopUpRelations.propTypes = {
   popUpTitle: PropTypes.string.isRequired,
   range: PropTypes.string,
   rangeProperties: PropTypes.array.isRequired,
+  resetIsFormSet: PropTypes.func.isRequired,
   routePath: PropTypes.string.isRequired,
   showLoader: PropTypes.bool,
   showRelation: PropTypes.bool.isRequired,

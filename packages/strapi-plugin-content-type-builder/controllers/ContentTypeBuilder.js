@@ -64,7 +64,6 @@ module.exports = {
   },
 
   createModel: async ctx => {
-
     const {name, description, connection, collectionName, attributes = [], plugin } = ctx.request.body;
     const type = _.get(ctx.request.body, '@type');
 
@@ -80,6 +79,9 @@ module.exports = {
     }
 
     strapi.reload.isWatching = false;
+
+    await Service.appearance(formatedAttributes, name, 'content-manager');
+
     await Service.generateAPI(type, name, description, connection, collectionName, []);
 
     const modelFilePath = Service.getModelPath(name, plugin);
@@ -139,6 +141,8 @@ module.exports = {
     if (name !== model) {
       await Service.generateAPI(name, description, connection, collectionName, []);
     }
+
+    await Service.appearance(formatedAttributes, name, plugin ? plugin : 'content-manager');
 
     try {
       const modelJSON = _.cloneDeep(require(modelFilePath));

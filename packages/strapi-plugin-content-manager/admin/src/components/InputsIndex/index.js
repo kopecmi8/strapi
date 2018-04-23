@@ -3,10 +3,11 @@
  * InputsIndex references all the input with errors available
  */
 
+/* eslint-disable react/require-default-props */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
-
+import { isEmpty, merge } from 'lodash';
+import Loadable from 'react-loadable';
 // Design
 import InputAddonWithErrors from 'components/InputAddonWithErrors';
 import InputCheckboxWithErrors from 'components/InputCheckboxWithErrors';
@@ -15,6 +16,7 @@ import InputEmailWithErrors from 'components/InputEmailWithErrors';
 import InputEntityWithErrors from 'components/InputEntityWithErrors';
 import InputFileWithErrors from 'components/InputFileWithErrors';
 import InputNumberWithErrors from 'components/InputNumberWithErrors';
+import InputMultiSelectWithErrors from 'components/InputMultiSelectWithErrors';
 import InputSearchWithErrors from 'components/InputSearchWithErrors';
 import InputSelectWithErrors from 'components/InputSelectWithErrors';
 import InputPasswordWithErrors from 'components/InputPasswordWithErrors';
@@ -22,6 +24,12 @@ import InputTextAreaWithErrors from 'components/InputTextAreaWithErrors';
 import InputTextWithErrors from 'components/InputTextWithErrors';
 import InputToggleWithErrors from 'components/InputToggleWithErrors';
 import InputUrlWithErrors from 'components/InputUrlWithErrors';
+// import WysiwygWithErrors from 'components/WysiwygWithErrors';
+const Loading = () => <div>Loading ...</div>;
+const LoadableWysiwyg = Loadable({
+  loader: () => import('components/WysiwygWithErrors'),
+  loading: Loading,
+});
 
 const DefaultInputError = ({ type }) => <div>Your input type: <b>{type}</b> does not exist</div>;
 
@@ -32,6 +40,7 @@ const inputs = {
   email: InputEmailWithErrors,
   entity: InputEntityWithErrors,
   file: InputFileWithErrors,
+  multiSelect: InputMultiSelectWithErrors,
   number: InputNumberWithErrors,
   password: InputPasswordWithErrors,
   search: InputSearchWithErrors,
@@ -41,6 +50,7 @@ const inputs = {
   textarea: InputTextAreaWithErrors,
   toggle: InputToggleWithErrors,
   url: InputUrlWithErrors,
+  wysiwyg: LoadableWysiwyg,
 };
 
 function InputsIndex(props) {
@@ -61,14 +71,20 @@ function InputsIndex(props) {
       inputValue = props.value || '';
   }
 
+  merge(inputs, props.customInputs);
+
   const Input = inputs[type] ? inputs[type] : DefaultInputError;
 
   return <Input {...props} value={inputValue} />;
 }
 
+DefaultInputError.propTypes = {
+  type: PropTypes.string.isRequired,
+};
+
 InputsIndex.defaultProps = {
   addon: false,
-  value: null,
+  customInputs: {},
 };
 
 InputsIndex.propTypes = {
@@ -76,12 +92,9 @@ InputsIndex.propTypes = {
     PropTypes.bool,
     PropTypes.string,
   ]),
+  customInputs: PropTypes.object,
   type: PropTypes.string.isRequired,
   value: PropTypes.any,
-};
-
-DefaultInputError.propTypes = {
-  type: PropTypes.string.isRequired,
 };
 
 export default InputsIndex;

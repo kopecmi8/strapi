@@ -11,7 +11,7 @@ const argv = require('minimist')(process.argv.slice(2));
 const cssnext = require('postcss-cssnext');
 const postcssFocus = require('postcss-focus');
 const postcssReporter = require('postcss-reporter');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 
 const isAdmin = process.env.IS_ADMIN === 'true';
@@ -35,7 +35,7 @@ const rootAdminpath = (() => {
 const plugins = {
   exist: false,
   src: [],
-  folders: {}
+  folders: {},
 };
 
 if (process.env.npm_lifecycle_event === 'start') {
@@ -46,7 +46,18 @@ if (process.env.npm_lifecycle_event === 'start') {
     plugins.exist = true;
   }
 
-  plugins.src = process.env.IS_ADMIN === 'true' && !plugins.exist ? fs.readdirSync(path.resolve(appPath, 'plugins')).filter(x => x[0] !== '.') : [];
+  plugins.src = process.env.IS_ADMIN === 'true' && !plugins.exist ? fs.readdirSync(path.resolve(appPath, 'plugins')).filter(x => {
+    let hasAdminFolder;
+    
+    try {
+      fs.accessSync(path.resolve(appPath, 'plugins', x, 'admin', 'src', 'containers', 'App'));
+      hasAdminFolder = true;
+    } catch(err) {
+      hasAdminFolder = false;
+    }
+
+    return x[0] !== '.' && hasAdminFolder;
+  }) : [];
 
   plugins.folders = plugins.src.reduce((acc, current) => {
     acc[current] = path.resolve(appPath, 'plugins', current, 'node_modules', 'strapi-helper-plugin', 'lib', 'src');
@@ -61,15 +72,15 @@ const port = argv.port || process.env.PORT || 3000;
 module.exports = require('./webpack.base.babel')({
   // Add hot reloading in development
   entry: Object.assign({
-      main: [
-        `webpack-hot-middleware/client?path=http://localhost:${port}/__webpack_hmr`,
-        path.join(appPath, 'admin', 'admin', 'src', 'app.js'),
-      ]
-    }, plugins.src.reduce((acc, current) => {
-        acc[current] = path.resolve(plugins.folders[current], 'app.js');
+    main: [
+      `webpack-hot-middleware/client?path=http://localhost:${port}/__webpack_hmr`,
+      path.join(appPath, 'admin', 'admin', 'src', 'app.js'),
+    ],
+  }, plugins.src.reduce((acc, current) => {
+    acc[current] = path.resolve(plugins.folders[current], 'app.js');
 
-        return acc;
-      }, {})
+    return acc;
+  }, {})
   ),
 
   // Don't use hashes in dev mode for better performance
@@ -131,7 +142,7 @@ module.exports = require('./webpack.base.babel')({
     'react': path.resolve(rootAdminpath, 'node_modules', 'strapi-helper-plugin', 'node_modules', 'react'),
     'react-dom': path.resolve(rootAdminpath, 'node_modules', 'strapi-helper-plugin', 'node_modules', 'react-dom'),
     'react-transition-group': path.resolve(rootAdminpath, 'node_modules', 'strapi-helper-plugin', 'node_modules', 'react-transition-group'),
-    'reactstrap': path.resolve(rootAdminpath, 'node_modules', 'strapi-helper-plugin', 'node_modules', 'reactstrap')
+    'reactstrap': path.resolve(rootAdminpath, 'node_modules', 'strapi-helper-plugin', 'node_modules', 'reactstrap'),
   },
 
   // Emit a source map for easier debugging

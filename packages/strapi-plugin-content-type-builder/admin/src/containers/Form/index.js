@@ -179,6 +179,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
     this.props.resetFormErrors();
     // Close modal
     router.push(`${this.props.redirectRoute}/${contentType.name}`);
+    this.props.resetIsFormSet();
   }
 
   createContentType = (data) => {
@@ -312,6 +313,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
     // Empty errors
     this.props.resetFormErrors();
     storeData.setContentType(newContentType);
+    this.props.resetIsFormSet();
   }
 
   fetchModel = (contentTypeName) => {
@@ -437,7 +439,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
 
   initComponent = (props, condition) => {
     if (!isEmpty(props.hash)) {
-      this.props.resetIsFormSet();
+      // this.props.resetIsFormSet();
       this.setState({ showModal: true });
       const valueToReplace = includes(props.hash, '#create') ? '#create' : '#edit';
       const contentTypeName = replace(split(props.hash, '::')[0], valueToReplace, '');
@@ -459,7 +461,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
           break;
         }
         case includes(props.hash, 'contentType'):
-          //In firt load get available Connections and Schema.org types and then sets the form
+          //In first load get available Connections and Schema.org types and then sets the form
           if(isEmpty(this.props.types) && isEmpty(this.props.connections)){
             this.props.prepareForm(props.hash);
           }else{
@@ -643,6 +645,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
           values={this.props.modifiedDataAttribute}
           range={this.props.range}
           rangeProperties={rangeProperties}
+          resetIsFormSet={this.props.resetIsFormSet}
           isRangePropertiesFetched={this.props.isRangePropertiesFetched}
           dropDownItems={dropDownItems}
           onSubmit={this.handleSubmit}
