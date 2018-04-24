@@ -7,6 +7,7 @@ import {router} from 'app';
 import AttributeCard from 'components/AttributeCard';
 import Input from 'components/InputsIndex';
 import Label from 'components/Label';
+import { SCHEMA_EMAIL, SCHEMA_TEXT } from '../../utils/schemaOrg';
 
 
 class PropertiesForm extends React.Component {
@@ -29,9 +30,9 @@ class PropertiesForm extends React.Component {
       }
     });
 
-    if(this.props.range === 'http://schema.org/Text'){
+    if(this.props.range === SCHEMA_TEXT){
       attributes = attributes.filter((attribute) => {
-        if(this.props.property === 'http://schema.org/email') {
+        if(this.props.property === SCHEMA_EMAIL) {
           return includes(attribute.type, 'email');
         }else{
           return !includes(attribute.type, 'email');

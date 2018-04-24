@@ -44,6 +44,7 @@ import PropertiesForm from 'components/PropertiesForm';
 // Utils
 import { checkFormValidity } from '../../utils/formValidations';
 import { storeData } from '../../utils/storeData';
+import { schemaOrg } from '../../utils/schemaOrg';
 
 import checkAttributeValidations from './utils/attributeValidations';
 import setParallelAttribute, { setTempAttribute } from './utils/setAttribute';
@@ -403,6 +404,11 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
       }
 
     } else {
+      //prefill name of content type by its @type
+      if(target.name === '@type'){
+        this.props.changeInput('name', camelCase(schemaOrg.replace(target.value)), includes(this.props.hash, 'edit'));
+      }
+
       this.props.changeInput(target.name, value, includes(this.props.hash, 'edit'));
     }
   }

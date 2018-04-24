@@ -13,6 +13,7 @@ import InputAddonWithErrors from 'components/InputAddonWithErrors';
 import InputCheckboxWithErrors from 'components/InputCheckboxWithErrors';
 import InputDateWithErrors from 'components/InputDateWithErrors';
 import InputEmailWithErrors from 'components/InputEmailWithErrors';
+import InputEntityWithErrors from 'components/InputEntityWithErrors';
 import InputFileWithErrors from 'components/InputFileWithErrors';
 import InputNumberWithErrors from 'components/InputNumberWithErrors';
 import InputMultiSelectWithErrors from 'components/InputMultiSelectWithErrors';
@@ -37,6 +38,7 @@ const inputs = {
   checkbox: InputCheckboxWithErrors,
   date: InputDateWithErrors,
   email: InputEmailWithErrors,
+  entity: InputEntityWithErrors,
   file: InputFileWithErrors,
   multiSelect: InputMultiSelectWithErrors,
   number: InputNumberWithErrors,
@@ -49,6 +51,40 @@ const inputs = {
   toggle: InputToggleWithErrors,
   url: InputUrlWithErrors,
   wysiwyg: LoadableWysiwyg,
+};
+
+const getInputType = (type = '') => {
+  switch (type.toLowerCase()) {
+    case 'boolean':
+      return 'checkbox';
+    case 'bigint':
+    case 'decimal':
+    case 'float':
+    case 'integer':
+      return 'number';
+    case 'date':
+    case 'datetime':
+      return 'date';
+    case 'email':
+      return 'email';
+    case 'enumeration':
+      return 'select';
+    case 'password':
+      return 'password';
+    case 'string':
+      return 'text';
+    case 'text':
+      return 'textarea';
+    case 'file':
+    case 'files':
+      return 'file';
+    case 'entity':
+      return 'entity';
+    case 'url':
+      return 'url';
+    default:
+      return 'text';
+  }
 };
 
 function InputsIndex(props) {
@@ -96,3 +132,4 @@ InputsIndex.propTypes = {
 };
 
 export default InputsIndex;
+export {InputsIndex, getInputType};

@@ -41,7 +41,8 @@ class InputUrl extends React.Component {
 
     return (
       <div className={cn(styles.inputUrl, 'input-group', !isEmpty(className) && className)} style={style}>
-        <span className={cn(
+        <span
+          className={cn(
             'input-group-addon',
             styles.addonURL,
             this.state.isFocused && styles.addonFocus,
@@ -94,10 +95,10 @@ InputUrl.propTypes = {
   deactivateErrorHighlight: PropTypes.bool,
   disabled: PropTypes.bool,
   error: PropTypes.bool,
+  name: PropTypes.string.isRequired,
   onBlur: PropTypes.func,
   onChange: PropTypes.func.isRequired,
   onFocus: PropTypes.func,
-  name: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   style: PropTypes.object,
   tabIndex: PropTypes.string,

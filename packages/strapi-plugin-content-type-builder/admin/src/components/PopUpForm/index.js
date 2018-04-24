@@ -75,6 +75,18 @@ class PopUpForm extends React.Component { // eslint-disable-line react/prefer-st
         link: this.createComponent(item),
       },
     };
+    //disable editing @type to avoid non determined state
+    const disabled = item.name === '@type' && includes(this.props.routePath, 'edit') ? true : false;
+
+    //prefilled label
+    if(item.name === 'params.label'){
+      item.placeholder = get(this.props.values, 'name');
+    }
+
+    //use label input as name if non-semantic attribute is added or edited
+    if(isEmpty(get(this.props.values, 'name')) && item.name === 'params.label'){
+      item.name = 'name';
+    }
 
     if (item.name === 'params.appearance.WYSIWYG') {
       value = get(this.props.values, item.name, false);
@@ -98,6 +110,7 @@ class PopUpForm extends React.Component { // eslint-disable-line react/prefer-st
         errors={errors}
         didCheckErrors={this.props.didCheckErrors}
         autoFocus={key === 0 && item.type !== 'date'}
+        disabled={disabled}
       />
     );
   }

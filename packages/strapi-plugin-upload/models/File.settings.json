@@ -9,12 +9,16 @@
   },
   "@context": {
     "@vocab": "http://schema.org/",
-    "__v": "http://www.w3.org/2001/XMLSchema#integer",
     "_id": "http://schema.org/identifier",
     "mime": "htpp://schema.org/fileFormat",
-    "size": "htpp://schema.org/contentSize"
+    "size": "htpp://schema.org/contentSize",
+    "__v": null,
+    "hash": null,
+    "ext": null,
+    "provider": null,
+    "related": null
   },
-  "@type": "ImageObject",
+  "@type": "MediaObject",
   "attributes": {
     "name": {
       "type": "string",

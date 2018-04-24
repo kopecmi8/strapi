@@ -39,7 +39,7 @@ const initialState = fromJS({
   properties: List(),
   showButtons: false,
   modelLoading: true,
-  propertiesLoading: false,
+  propertiesLoading: true,
   showButtonLoader: false,
   tableExists: true,
 });

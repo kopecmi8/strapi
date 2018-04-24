@@ -21,6 +21,7 @@ import request from 'utils/request';
 import { temporaryContentTypePosted } from 'containers/App/actions';
 
 import { storeData } from '../../utils/storeData';
+import schemaOrg from '../../utils/schemaOrg';
 
 import {CHECK_IF_TABLE_EXISTS, MODEL_FETCH, PROPERTIES_FETCH, SUBMIT} from './constants';
 import {
@@ -64,7 +65,7 @@ export function* fetchModel(action) {
     yield put(modelFetchSucceeded(data));
 
     if(!isEmpty(get(data, ['model', '@type']))) {
-      const propertiesRequestURL = `/content-type-builder/properties/${replace(get(data, ['model', '@type']), 'http://schema.org/', '')}`;
+      const propertiesRequestURL = `/content-type-builder/properties/${schemaOrg.replace(get(data, ['model', '@type']))}`;
       const propertiesData = yield call(request, propertiesRequestURL, { method: 'GET' });
 
       yield put(propertiesFetchSucceeded(propertiesData));
@@ -83,7 +84,7 @@ export function* fetchModel(action) {
 export function* fetchProperties() {
   const model = yield select(makeSelectModel());
 
-  const requestURL = `/content-type-builder/properties/${replace(get(model, '@type'), 'http://schema.org/', '')}`;
+  const requestURL = `/content-type-builder/properties/${schemaOrg.replace(get(model, '@type'))}`;
   const data = yield call(request, requestURL, { method: 'GET' });
 
   yield put(propertiesFetchSucceeded(data));

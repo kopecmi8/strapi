@@ -16,6 +16,7 @@ import RelationBox from 'components/RelationBox';
 import RelationNaturePicker from 'components/RelationNaturePicker';
 import {router} from 'app';
 import { storeData } from '../../utils/storeData';
+import schemaOrg from '../../utils/schemaOrg';
 import styles from './styles.scss';
 
 /* eslint-disable jsx-a11y/tabindex-no-positive */
@@ -76,7 +77,7 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
     }else {
       this.props.resetIsFormSet();
       if(!isEmpty(this.props.range)){
-        router.push(`${this.props.routePath.split('#')[0]}#create::contentType::baseSettings::${this.props.range.replace('http://schema.org/', '')}`);
+        router.push(`${this.props.routePath.split('#')[0]}#create::contentType::baseSettings::${schemaOrg.replace(this.props.range)}`);
       }else{
         router.push(`${this.props.routePath.split('#')[0]}#create::contentType::baseSettings`);
       }

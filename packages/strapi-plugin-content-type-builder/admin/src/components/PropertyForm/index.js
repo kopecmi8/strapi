@@ -5,17 +5,17 @@ import cn from 'classnames';
 
 import Input from 'components/InputsIndex';
 import Label from 'components/Label';
+import { schemaOrg, SCHEMA_EMAIL, SCHEMA_TEXT } from '../../utils/schemaOrg';
 
 import styles from './styles.scss';
 
-const SCHEMA = 'http://schema.org/';
 
 
 class PropertyForm extends React.Component {
 
   componentDidMount() {
     if(!isArray(this.props.ranges)){
-      this.props.onChange({target: {type: 'text', value: this.props.ranges, name: `params.entity.attributes.${this.props.property.replace(SCHEMA, '')}.range`}});
+      this.props.onChange({target: {type: 'text', value: this.props.ranges, name: `params.entity.attributes.${schemaOrg.replace(this.props.property)}.range`}});
     }
   }
 
@@ -25,9 +25,9 @@ class PropertyForm extends React.Component {
         if (includes(attribute.ranges, this.props.values.range)) return attribute;
       });
 
-      if(this.props.values.range === 'http://schema.org/Text'){
+      if(this.props.values.range === SCHEMA_TEXT){
         attributes = attributes.filter((attribute) => {
-          if(this.props.property === 'http://schema.org/email') {
+          if(this.props.property === SCHEMA_EMAIL) {
             return includes(attribute.type, 'email');
           }else{
             return !includes(attribute.type, 'email');
@@ -53,7 +53,7 @@ class PropertyForm extends React.Component {
     const validations = {required: true};
 
     if(attributes){
-      const property = this.props.property.replace(SCHEMA, '');
+      const property = schemaOrg.replace(this.props.property);
       const selectOptions = attributes.map((attribute) => {
         return attribute.type;
       });
@@ -76,7 +76,7 @@ class PropertyForm extends React.Component {
 
 
   renderRangeSelect = () => {
-    const property = this.props.property.replace(SCHEMA, '');
+    const property = schemaOrg.replace(this.props.property);
     const validations = {required: true};
 
     if(isArray(this.props.ranges)){
@@ -113,7 +113,7 @@ class PropertyForm extends React.Component {
   }
 
   render () {
-    const property = this.props.property.replace(SCHEMA, '');
+    const property = schemaOrg.replace(this.props.property);
     const rangeSelect = this.renderRangeSelect();
     const attributeSelect = this.renderAttributeSelect();
     const label = (this.props.values.label !== undefined) ? this.props.values.label : startCase(property);

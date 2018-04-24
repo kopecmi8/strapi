@@ -146,22 +146,27 @@ module.exports = {
 
   getProperties: async (type) => {
 
+    //URL constants
+    const PROPERTY_URL = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#Property';
+    const LABEL_URL = 'http://www.w3.org/2000/01/rdf-schema#label';
+    const SCHEMA_RANGE_INCLUDES = 'http://schema.org/rangeIncludes';
+
     const response = await superagent.get('http://schema.org/' + type).set('Accept', 'application/ld+json');
     const expanded = await jsonld.expand(JSON.parse(response.text));
 
     return expanded.filter(property => {
       const type = _.get(property, '@type');
-      if (type && type.includes('http://www.w3.org/1999/02/22-rdf-syntax-ns#Property')) {
+      if (type && type.includes(PROPERTY_URL)) {
         return property;
       }
 
     }).map(property => {
 
-      const ranges = _.get(property, 'http://schema.org/rangeIncludes').map((range) => {
+      const ranges = _.get(property, SCHEMA_RANGE_INCLUDES).map((range) => {
         return _.get(range, '@id');
       });
 
-      const labels = _.get(property, 'http://www.w3.org/2000/01/rdf-schema#label').map((label) => {
+      const labels = _.get(property, LABEL_URL).map((label) => {
         return _.get(label, '@value');
       });
 

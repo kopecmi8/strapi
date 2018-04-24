@@ -20,43 +20,9 @@ import {
 // You can find these components in either
 // ./node_modules/strapi-helper-plugin/lib/src
 // or strapi/packages/strapi-helper-plugin/lib/src
-import Input from 'components/InputsIndex';
+import { InputsIndex as Input, getInputType } from 'components/InputsIndex';
 
 import styles from './styles.scss';
-
-export const getInputType = (type = '') => {
-  switch (type.toLowerCase()) {
-    case 'boolean':
-      return 'checkbox';
-    case 'bigint':
-    case 'decimal':
-    case 'float':
-    case 'integer':
-      return 'number';
-    case 'date':
-    case 'datetime':
-      return 'date';
-    case 'email':
-      return 'email';
-    case 'enumeration':
-      return 'select';
-    case 'password':
-      return 'password';
-    case 'string':
-      return 'text';
-    case 'text':
-      return 'textarea';
-    case 'file':
-    case 'files':
-      return 'file';
-    case 'entity':
-      return 'entity';
-    case 'url':
-      return 'url';
-    default:
-      return 'text';
-  }
-};
 
 class Edit extends React.PureComponent {
   state = { currentLayout: {}, displayedFields: {} };

@@ -19,9 +19,8 @@ import {
 // Design
 import Label from 'components/Label';
 import InputSpacer from 'components/InputSpacer';
-import Input from 'components/InputsIndex';
+import { InputsIndex as Input, getInputType } from 'components/InputsIndex';
 
-import {getInputType} from 'components/Edit';
 
 import styles from './styles.scss';
 

@@ -98,7 +98,8 @@ class InputUrlWithErrors extends React.Component { // eslint-disable-line react/
     }
 
     return (
-      <div className={cn(
+      <div
+        className={cn(
           styles.containerUrl,
           this.props.customBootstrapClass,
           !isEmpty(this.props.className) && this.props.className,

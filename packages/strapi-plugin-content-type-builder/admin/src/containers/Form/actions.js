@@ -10,6 +10,7 @@ import { concat, includes, map, forEach, replace, cloneDeep } from 'lodash';
 import { Map, List, fromJS } from 'immutable';
 import { getValidationsFromForm } from '../../utils/formValidations';
 import { storeData } from '../../utils/storeData';
+import schemaOrg from '../../utils/schemaOrg';
 
 import {
   CHANGE_INPUT,
@@ -53,10 +54,8 @@ export function changeInput(key, value, isEditing) {
 }
 
 export function changeInputAttribute(key, value) {
-  // const keys = key.split('.');
   return {
     type: CHANGE_INPUT_ATTRIBUTE,
-    // keys,
     keys: ['modifiedDataAttribute'].concat(key.split('.')),
     value,
   };
@@ -130,9 +129,10 @@ export function prepareForm(hash) {
   };
 }
 
-export function rangePropertiesFetch() {
+export function rangePropertiesFetch(range) {
   return {
     type: RANGE_PROPERTIES_FETCH,
+    range,
   };
 }
 
@@ -177,7 +177,7 @@ export function resetIsFormSet() {
 export function setAttributeForm(hash, property, range, targetRange) {
   const data = setAttributeFormData(hash, property, range);
   const attributeRelation = Map({
-    name: replace(property, 'http://schema.org/', ''),
+    name: schemaOrg.replace(property),
     params: Map({
       columnName: '',
       target: '',
@@ -250,7 +250,7 @@ export function setForm(hash) {
   const formValidations = getValidationsFromForm(forms[hash.split('::')[1]], []);
   const type = hash.split('::')[3];
   if(type !== undefined){
-    data = data.updateIn(['@type'], () => `http://schema.org/${type}`);
+    data = data.updateIn(['@type'], () => schemaOrg.makeURL(type));
   }
 
   return {
@@ -308,7 +308,7 @@ function setAttributeFormData(hash, property, range) {
   const hashArray = hash.split('::');
   const formType = replace(hashArray[1], 'attribute', '');
   const settingsType = hashArray[2];
-  const form = forms.attribute[formType][settingsType];
+  const form = cloneDeep(forms.attribute[formType][settingsType]);
   const type = formType === 'number' ? 'integer' : formType;
   let defaultValue = type === 'number' ? 0 : '';
 
@@ -317,7 +317,7 @@ function setAttributeFormData(hash, property, range) {
   }
 
   const attribute = Map({
-    name: replace(property, 'http://schema.org/', ''),
+    name: schemaOrg.replace(property),
     params: Map({
       appearance: Map({
         WYSIWYG: false,

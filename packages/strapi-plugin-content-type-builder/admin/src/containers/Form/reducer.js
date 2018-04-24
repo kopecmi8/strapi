@@ -6,6 +6,7 @@
 
 import { fromJS, List, Map } from 'immutable';
 import { findIndex, isArray } from 'lodash';
+import schemaOrg from '../../utils/schemaOrg';
 import {
   CHANGE_INPUT,
   CHANGE_INPUT_ATTRIBUTE,
@@ -60,9 +61,6 @@ function formReducer(state = initialState, action) {
         .updateIn([action.objectToModify, action.key], () => action.value);
     case CHANGE_INPUT_ATTRIBUTE: {
       return state.updateIn(action.keys, () => action.value);
-      // const keys = action.keys;
-      // keys.unshift('modifiedDataAttribute');
-      // return state.updateIn(keys, () => action.value);
     }
     case CONNECTIONS_FETCH_SUCCEEDED:
       return state
@@ -80,10 +78,13 @@ function formReducer(state = initialState, action) {
       if (action.shouldSetUpdatedContentTypeProp) {
         return state
           .set('isFormSet', false)
+          .set('modifiedData', Map())
           .set('updatedContentType', !state.get('updatedContentType'));
       }
 
-      return state.set('isFormSet', false);
+      return state
+        .set('isFormSet', false)
+        .set('modifiedData', Map());
     }
     case CONTENT_TYPE_FETCH_SUCCEEDED:
       return state
@@ -160,7 +161,7 @@ function formReducer(state = initialState, action) {
         if(action['@type'] !== undefined) {
           return state
             .set('form', Map(form))
-            .updateIn(['modifiedData', '@type'], () => `http://schema.org/${action['@type']}`);
+            .updateIn(['modifiedData', '@type'], () => schemaOrg.makeURL(action['@type']));
         }else{
           return state.set('form', Map(form));
         }

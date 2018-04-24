@@ -25,6 +25,9 @@
           "items": "types",
           "validations": {
             "required": true
+          },
+          "inputDescription": {
+            "id": "content-type-builder.form.contentType.item.type.description"
           }
         },
         {

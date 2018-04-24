@@ -13,6 +13,7 @@ import { FormattedMessage } from 'react-intl';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import Input from 'components/InputsIndex';
 import PropertyForm from 'components/PropertyForm';
+import schemaOrg from '../../utils/schemaOrg';
 import styles from './styles.scss';
 
 class PopUpEntity extends React.Component {
@@ -59,7 +60,7 @@ class PopUpEntity extends React.Component {
   handleChange = ({target}) => {
     if(target.name === 'params.properties'){
       const values = split(target.value, ',');
-      const attributes = pickBy(this.props.values.params.entity.attributes, (value, key) => includes(values.map((value) => value.replace('http://schema.org/', '')), key));
+      const attributes = pickBy(this.props.values.params.entity.attributes, (value, key) => includes(values.map((value) => schemaOrg.replace(value)), key));
       this.props.onChange({target: {type: 'text', name: 'params.entity.attributes', value: fromJS(attributes)}});
     }
     this.props.onChange({target});
@@ -69,7 +70,7 @@ class PopUpEntity extends React.Component {
     let values = split(this.props.values.params.properties, ',');
     values = values.filter((value) => value !== property);
     const formattedValues = join(values, ',');
-    const attributes = pickBy(this.props.values.params.entity.attributes, (value, key) => includes(values.map((value) => value.replace('http://schema.org/', '')), key));
+    const attributes = pickBy(this.props.values.params.entity.attributes, (value, key) => includes(values.map((value) => schemaOrg.replace(value)), key));
 
     this.props.onChange({target: {type: 'multiSelect', name: 'params.properties', value: formattedValues}});
     this.props.onChange({target: {type: 'text', name: 'params.entity.attributes', value: fromJS(attributes)}});
@@ -86,6 +87,11 @@ class PopUpEntity extends React.Component {
         link: this.createComponent(item),
       },
     };
+
+    //prefilled label
+    if(item.name === 'params.label'){
+      item.placeholder = get(this.props.values, 'name');
+    }
 
     return (
       <Input
@@ -121,7 +127,7 @@ class PopUpEntity extends React.Component {
 
         let values = {};
         if(this.props.values.params.entity) {
-          values = get(this.props.values.params.entity.attributes, property.replace('http://schema.org/', ''));
+          values = get(this.props.values.params.entity.attributes, schemaOrg.replace(property));
         }
 
         return (

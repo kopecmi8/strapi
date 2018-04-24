@@ -1,7 +1,9 @@
 import pluralize from 'pluralize';
-import {capitalize, findIndex, get, isEmpty, replace, sortBy} from 'lodash';
+import {capitalize, findIndex, get, isEmpty, sortBy} from 'lodash';
+import { List } from 'immutable';
 import { takeLatest, call, put, fork, select } from 'redux-saga/effects';
 import request from 'utils/request';
+import schemaOrg from '../../utils/schemaOrg';
 
 import {
   SUBMIT_ACTION_SUCCEEDED,
@@ -26,6 +28,7 @@ import {
   SET_ATTRIBUTE_FORM,
   SET_ATTRIBUTE_FORM_EDIT,
   PREPARE_FORM,
+  RANGE_PROPERTIES_FETCH,
 } from './constants';
 
 import {
@@ -119,13 +122,22 @@ export function* fetchConnectionsAndTypes(action) {
   yield put(setForm(action.hash));
 }
 
-export function* fetchRangeProperties(action) {
-  yield put(rangePropertiesFetch());
-  const range = replace(action.attribute.get('params').get('range'), 'http://schema.org/', '');
-  const requestURL = `${requestURLBase}/properties/${range}`;
-  const data = yield call(request, requestURL, { method: 'GET' });
+export function * startFetchRangeProperties(action){
+  const range = action.attribute.get('params').get('range');
+  if(range && !schemaOrg.isPrimitiveProperty(range)) {
+    yield put(rangePropertiesFetch(range));
+  }
+}
 
-  yield put(rangePropertiesFetchSucceeded(data));
+export function* fetchRangeProperties(action) {
+  try {
+    const requestURL = `${requestURLBase}/properties/${schemaOrg.replace(action.range)}`;
+    const data = yield call(request, requestURL, {method: 'GET'});
+
+    yield put(rangePropertiesFetchSucceeded(data));
+  }catch(error) {
+    yield put(rangePropertiesFetchSucceeded({properties: List()}));
+  }
 }
 
 export function* resetFormComponent() {
@@ -135,8 +147,9 @@ export function* resetFormComponent() {
 function* defaultSaga() {
   yield fork(takeLatest, CONTENT_TYPE_EDIT, editContentType);
   yield fork(takeLatest, CONTENT_TYPE_FETCH, fetchContentType);
-  yield fork(takeLatest, SET_ATTRIBUTE_FORM, fetchRangeProperties);
-  yield fork(takeLatest, SET_ATTRIBUTE_FORM_EDIT, fetchRangeProperties);
+  yield fork(takeLatest, SET_ATTRIBUTE_FORM, startFetchRangeProperties);
+  yield fork(takeLatest, SET_ATTRIBUTE_FORM_EDIT, startFetchRangeProperties);
+  yield fork(takeLatest, RANGE_PROPERTIES_FETCH, fetchRangeProperties);
   yield fork(takeLatest, PREPARE_FORM, fetchConnectionsAndTypes);
   yield fork(takeLatest, SUBMIT_ACTION_SUCCEEDED, resetFormComponent);
 }
