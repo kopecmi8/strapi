@@ -8,7 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
 import Loader from 'react-loader';
-import { get, isEmpty, map, startCase } from 'lodash';
+import { get, isEmpty, map, startCase, isNull } from 'lodash';
 import pluralize from 'pluralize';
 import cn from 'classnames';
 
@@ -26,6 +26,13 @@ class RelationBox extends React.Component { // eslint-disable-line react/prefer-
     this.state = {
       showMenu: false,
     };
+  }
+
+  componentDidUpdate() {
+    //prefilled value used in case of reversed property
+    if(isNull(this.props.value)) {
+      this.props.onChange({target: {name: get(this.props.input, 'name'), value: this.props.contentTypeTargetPlaceholder}});
+    }
   }
 
   handleClick = (e) => {
@@ -144,7 +151,28 @@ class RelationBox extends React.Component { // eslint-disable-line react/prefer-
 
     const dropDown = !isEmpty(this.props.dropDownItems) ? this.renderDropdownMenu() : '';
 
-    if(!this.props.isLoaded){
+    if (isEmpty(this.props.dropDownItems) && this.props.tabIndex === '2'){
+      return (
+        <div className={styles.relationBox}>
+          <div className={styles.headerContainer}>
+            <FormattedMessage id="content-type-builder.popUpRelation.noEntity.title" />
+          </div>
+          <div
+            className={styles.inputContainer}
+          >
+            <div
+              className={cn(
+                'container-fluid',
+                styles.noEntity,
+              )}
+            >
+              <FormattedMessage id="content-type-builder.popUpRelation.noEntity.description" />
+              <Button kind="primaryAddShape" primary onClick={this.props.onCreateContentType} ><FormattedMessage id="content-type-builder.popUpRelation.noEntity.button" /></Button>
+            </div>
+          </div>
+        </div>
+      );
+    }else if(!this.props.isLoaded){
       return (
         <div className={styles.relationBox}>
           <div className={styles.headerContainer}>
@@ -165,7 +193,7 @@ class RelationBox extends React.Component { // eslint-disable-line react/prefer-
           </div>
         </div>
       );
-    }else if(!isEmpty(this.props.dropDownItems) || this.props.tabIndex === '1' ) {
+    }else {
       return (
         <div className={styles.relationBox}>
           <div className={styles.headerContainer}>
@@ -187,27 +215,6 @@ class RelationBox extends React.Component { // eslint-disable-line react/prefer-
                 </div>
               </div>
             </form>
-          </div>
-        </div>
-      );
-    }else{
-      return (
-        <div className={styles.relationBox}>
-          <div className={styles.headerContainer}>
-            <FormattedMessage id="content-type-builder.popUpRelation.noEntity.title" />
-          </div>
-          <div
-            className={styles.inputContainer}
-          >
-            <div
-              className={cn(
-                'container-fluid',
-                styles.noEntity,
-              )}
-            >
-              <FormattedMessage id="content-type-builder.popUpRelation.noEntity.description" />
-              <Button kind="primaryAddShape" primary onClick={this.props.onCreateContentType} ><FormattedMessage id="content-type-builder.popUpRelation.noEntity.button" /></Button>
-            </div>
           </div>
         </div>
       );

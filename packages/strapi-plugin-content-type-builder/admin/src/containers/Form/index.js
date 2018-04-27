@@ -597,7 +597,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
     const renderModalBody = this.renderModalBody();
     // Hide the button in the modal
     const noButtons = includes(this.props.hash, '#choose') || includes(this.props.hash, '#properties');
-    const buttonSubmitMessage = includes(this.props.hash.split('::')[1], 'contentType') ? 'form.button.save' : 'form.button.continue';
+    const buttonSubmitMessage = 'form.button.continue';
     const renderCustomPopUpHeader = !includes(this.props.hash, '#choose') && includes(this.props.hash, '::attribute') ? this.renderCustomPopUpHeader(popUpTitle) : false;
     const edit = includes(this.props.hash, '#edit');
 

@@ -128,6 +128,7 @@
   "modelPage.contentType.list.relationShipTitle.singular": "relationship",
   "modelPage.attribute.relationWith": "Relation with",
   "modelPage.loading": "Loading content type ...",
+  "modelPage.unsaveWorkWarning": "You have unsaved changes in current content type which will be lost. Are you sure you want to leave without save?",
 
   "noTableWarning.description": "Don't forget to create the table `{modelName}` in your database",
   "noTableWarning.infos": "More info",

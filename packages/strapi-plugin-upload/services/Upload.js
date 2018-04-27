@@ -68,8 +68,22 @@ module.exports = {
 
   add: async (values) => {
 
+    const getTypeFromMimeType = (mimeType) => {
+      let type = strapi.plugins.upload.models.file['@type'];
+
+      if(_.includes(mimeType, 'image')){
+        type = 'ImageObject';
+      }else if(_.includes(mimeType, 'audio')){
+        type = 'AudioObject';
+      }else if(_.includes(mimeType, 'video')){
+        type = 'VideoObject';
+      }
+
+      return type;
+    }
+
     values['@context'] = strapi.plugins.upload.models.file['@context'];
-    values['@type'] = strapi.plugins.upload.models.file['@type'];
+    values['@type'] =  getTypeFromMimeType(values.mime);
 
     // Use Content Manager business logic to handle relation.
     if (strapi.plugins['content-manager']) {

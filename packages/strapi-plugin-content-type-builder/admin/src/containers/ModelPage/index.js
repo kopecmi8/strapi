@@ -8,9 +8,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { bindActionCreators, compose } from 'redux';
-import { get, has, includes, isEmpty, size, replace, startCase, findIndex } from 'lodash';
-import { FormattedMessage } from 'react-intl';
+import { get, has, includes, isEmpty, size, replace, startCase, findIndex, find, split, last } from 'lodash';
+import { injectIntl, FormattedMessage } from 'react-intl';
 import { NavLink } from 'react-router-dom';
+import { Prompt } from 'react-router';
 import Loader from 'react-loader';
 import PropTypes from 'prop-types';
 import { router } from 'app';
@@ -120,6 +121,15 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
   componentWillUnmount() {
     this.props.resetShowButtonsProps();
   }
+
+  testIfUnsavedChangesWillBeLost = (nextLocation) => {
+    const items = !isEmpty(this.props.menu) ? this.props.menu[0].items : [];
+    const temporaryModel = find(items, (item) => {return item.isTemporary});
+
+    return (!temporaryModel || temporaryModel.name !== this.props.match.params.modelName) && this.props.modelPage.showButtons && this.props.location.pathname != nextLocation.pathname;
+  }
+
+  toggleModalWarning = () => this.setState({ showWarning: !this.state.showWarning });
 
   addCustomSection = (sectionStyles) => (
     <div className={sectionStyles.pluginLeftMenuSection}>
@@ -360,6 +370,12 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
           modelLoading={this.props.modelPage.modelLoading}
           properties={this.props.modelPage.properties}
         />
+        <Prompt
+          message={location => (
+            this.testIfUnsavedChangesWillBeLost(location) ? this.props.intl.formatMessage({id: 'content-type-builder.modelPage.unsaveWorkWarning'}) : true
+          )}
+          when={true}
+        />
       </div>
     );
   }
@@ -421,4 +437,5 @@ export default compose(
   withReducer,
   withSaga,
   withConnect,
+  injectIntl,
 )(ModelPage);

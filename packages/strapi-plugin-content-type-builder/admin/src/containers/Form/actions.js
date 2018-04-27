@@ -185,7 +185,7 @@ export function setAttributeForm(hash, property, range, targetRange) {
       targetLabel: '',
       targetReverse: false,
       targetRange: targetRange,
-      key: '',
+      key: null,
       nature: 'oneToOne',
       required: false,
       reverse: false,

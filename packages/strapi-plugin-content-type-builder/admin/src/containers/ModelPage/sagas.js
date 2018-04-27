@@ -13,6 +13,7 @@ import {
   sortBy,
   unset,
 } from 'lodash';
+import { List } from 'immutable';
 import pluralize from 'pluralize';
 import { takeLatest, call, take, put, fork, cancel, select } from 'redux-saga/effects';
 
@@ -82,12 +83,16 @@ export function* fetchModel(action) {
 }
 
 export function* fetchProperties() {
-  const model = yield select(makeSelectModel());
+  try {
+    const model = yield select(makeSelectModel());
 
-  const requestURL = `/content-type-builder/properties/${schemaOrg.replace(get(model, '@type'))}`;
-  const data = yield call(request, requestURL, { method: 'GET' });
+    const requestURL = `/content-type-builder/properties/${schemaOrg.replace(get(model, '@type'))}`;
+    const data = yield call(request, requestURL, {method: 'GET'});
 
-  yield put(propertiesFetchSucceeded(data));
+    yield put(propertiesFetchSucceeded(data));
+  } catch(error) {
+    yield put(propertiesFetchSucceeded({properties: List()}));
+  }
 }
 
 export function* submitChanges(action) {
