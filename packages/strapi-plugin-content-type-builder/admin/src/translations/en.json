@@ -28,11 +28,12 @@
     "Create your first Content Type to be able to retrieve data from your API.",
 
   "home.emptyAttributes.title": "There are no fields yet",
-  "home.emptyAttributes.description": "Add your first field to your new Content Type",
+  "home.emptyAttributes.description": "Add your first field or semantic property to your new Content Type",
 
   "button.contentType.create": "Create Content Type",
   "button.contentType.add": "Add Content Type",
-  "button.attributes.add": "Add New Field",
+  "button.attributes.add": "Add new field",
+  "button.attributes.addProperty": "Add new property",
 
   "error.validation.required": "This value input is required.",
   "error.validation.regex": "The value does not match the regex.",
@@ -47,13 +48,20 @@
   "error.validation.minSupMax": "Can't be superior",
 
   "form.attribute.item.textarea.name": "Name",
+  "form.attribute.item.textarea.label": "Label",
   "form.attribute.item.number.name": "Name",
+  "form.attribute.item.number.label": "Label",
   "form.attribute.item.date.name": "Name",
+  "form.attribute.item.date.label": "Label",
   "form.attribute.item.media.name": "Name",
+  "form.attribute.item.media.label": "Label",
   "form.attribute.item.media.multiple": "Allow multiple files",
   "form.attribute.item.json.name": "Name",
+  "form.attribute.item.json.label": "Label",
   "form.attribute.item.boolean.name": "Name",
+  "form.attribute.item.boolean.label": "Label",
   "form.attribute.item.string.name": "Name",
+  "form.attribute.item.string.label": "Label",
   "form.attribute.item.appearance.name": "Appearance",
   "form.attribute.item.appearance.label": "Display as a WYSIWYG",
   "form.attribute.item.appearance.description":
@@ -69,11 +77,12 @@
     "You won't be able to create an entry if this field is empty",
   "form.attribute.item.uniqueField.description":
     "You won't be able to create an entry if there is an existing entry with identical content",
-  "form.attribute.item.defineRelation.fieldName": "Field name",
-  "form.attribute.item.defineRelation.propertyType": "Property type",
-  "form.attribute.item.url.name": "Name",
+  "form.attribute.item.defineRelation.fieldName": "Name",
+  "form.attribute.item.defineRelation.fieldLabel": "Label",
+  "form.attribute.item.defineRelation.propertyType": "Property",
   "form.attribute.item.entity.name": "Name",
-  "form.attribute.item.entity.properties": "Select entity properties",
+  "form.attribute.item.entity.label": "Label",
+  "form.attribute.item.entity.properties": "Select multiple entity properties",
   "form.attribute.item.customColumnName": "Custom column names",
   "form.attribute.item.customColumnName.description":
     "This is useful to rename database column names in a more comprehensive format for the API's responses",

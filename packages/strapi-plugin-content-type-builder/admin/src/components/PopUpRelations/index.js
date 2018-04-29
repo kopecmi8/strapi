@@ -36,7 +36,7 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
   }
 
   componentWillReceiveProps(nextProps) {
-    if (isEmpty(this.props.dropDownItems) && !isEmpty(nextProps.dropDownItems)) {
+    if ((isEmpty(this.props.dropDownItems) && !isEmpty(nextProps.dropDownItems)) || this.props.dropDownItems.length != nextProps.dropDownItems.length) {
       this.init(nextProps);
     }
   }
@@ -150,21 +150,32 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
       get(this.props.dropDownItems, [findIndex(this.props.dropDownItems, {'name': get(this.props.values, ['params', 'target']), source: get(this.props.values, ['params', 'pluginValue']) })])
       : get(this.props.dropDownItems, [findIndex(this.props.dropDownItems, ['name', get(this.props.values, ['params', 'target'])])]);
 
-    let propertyInput = cloneDeep(get(this.props.form, ['items', '2']));
+    let targetInput = cloneDeep(get(this.props.form, ['items', '2']));
     let startInput = cloneDeep(get(this.props.form, ['items', '0']));
 
-    if(this.props.isRangePropertiesFetched) {
-      if(isEmpty(this.props.rangeProperties)){
-        propertyInput = cloneDeep(get(this.props.form, ['items', '4']));
-      }else{
-        propertyInput.items = this.props.rangeProperties;
+    //modify start and target input based on semantic needs
+    if(startInput && targetInput ) {
+
+      if (this.props.isRangePropertiesFetched && this.props.isSemantic && !isEmpty(this.props.rangeProperties)) {
+        targetInput = cloneDeep(get(this.props.form, ['items', '4']));
+        targetInput.items = this.props.rangeProperties;
+      }
+
+      if (get(this.props.values, ['params', 'reverse'])) {
+        targetInput.disabled = true;
+        startInput.disabled = false;
+      }
+
+      if (!this.props.isSemantic) {
+        startInput.disabled = false;
+      }
+      
+      if (this.props.isSemantic){
+        startInput.label.id = 'content-type-builder.form.attribute.item.defineRelation.propertyType';
+        targetInput.label.id = 'content-type-builder.form.attribute.item.defineRelation.propertyType';
       }
     }
 
-    if(get(this.props.values, ['params', 'reverse'])){
-      propertyInput.disabled = true;
-      startInput.disabled = false;
-    }
 
     return (
       <ModalBody className={`${styles.modalBody} ${styles.flex}`}>
@@ -198,7 +209,7 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
           relationType={get(this.props.values, ['params', 'nature'])}
           onSubmit={this.props.onSubmit}
           header={header}
-          input={propertyInput}
+          input={targetInput}
           labelInput={get(this.props.form, ['items', '3'])}
           value={get(this.props.values, ['params', 'key'])}
           label={get(this.props.values, ['params', 'targetLabel'])}
@@ -207,15 +218,16 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
           errors={findIndex(this.props.formErrors, ['name', get(this.props.form, ['items', '2', 'name'])]) !== -1 ? this.props.formErrors[findIndex(this.props.formErrors, ['name', get(this.props.form, ['items', '2', 'name'])])].errors : []}
           dropDownItems={this.props.dropDownItems}
           onCreateContentType={this.handleAddContentType}
-          isLoaded={this.props.isRangePropertiesFetched}
+          isLoaded={this.props.isRangePropertiesFetched || !this.props.isSemantic}
         />
       </ModalBody>
     );
   }
 
   render() {
-    const loader = !this.props.isRangePropertiesFetched ?
-      <Button onClick={this.props.onSubmit} type="submit" className={styles.primary} disabled={!this.props.isRangePropertiesFetched}><p className={styles.saving}><span>.</span><span>.</span><span>.</span></p></Button>
+    const loaded = this.props.isRangePropertiesFetched || !this.props.isSemantic;
+    const loader = !loaded ?
+      <Button onClick={this.props.onSubmit} type="submit" className={styles.primary} disabled={!loaded}><p className={styles.saving}><span>.</span><span>.</span><span>.</span></p></Button>
       : <Button type="submit" onClick={this.props.onSubmit} className={styles.primary}><FormattedMessage id="content-type-builder.form.button.continue" /></Button>;
     const continueButton = !isEmpty(this.props.dropDownItems) ? loader : '';
 
@@ -265,6 +277,7 @@ PopUpRelations.propTypes = {
   isEditting: PropTypes.bool,
   isOpen: PropTypes.bool.isRequired,
   isRangePropertiesFetched: PropTypes.bool.isRequired,
+  isSemantic: PropTypes.bool.isRequired,
   onChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   popUpTitle: PropTypes.string.isRequired,

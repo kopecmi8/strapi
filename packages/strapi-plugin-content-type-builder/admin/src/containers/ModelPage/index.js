@@ -8,7 +8,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { bindActionCreators, compose } from 'redux';
-import { get, has, includes, isEmpty, size, replace, startCase, findIndex, find, split, last } from 'lodash';
+import { get, has, includes, isEmpty, size, replace, startCase, findIndex, find } from 'lodash';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { NavLink } from 'react-router-dom';
 import { Prompt } from 'react-router';
@@ -124,12 +124,17 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
 
   testIfUnsavedChangesWillBeLost = (nextLocation) => {
     const items = !isEmpty(this.props.menu) ? this.props.menu[0].items : [];
-    const temporaryModel = find(items, (item) => {return item.isTemporary});
+    const temporaryModel = find(items, item => ( item.isTemporary ));
 
-    return (!temporaryModel || temporaryModel.name !== this.props.match.params.modelName) && this.props.modelPage.showButtons && this.props.location.pathname != nextLocation.pathname;
+    const parsePathName = (pathname) => {
+      if(pathname.slice(-1) === '/'){
+        pathname = pathname.slice(0, -1);
+      }
+      return pathname;
+    };
+
+    return (!temporaryModel || temporaryModel.name !== this.props.match.params.modelName) && this.props.modelPage.showButtons && parsePathName(this.props.location.pathname) != parsePathName(nextLocation.pathname);
   }
-
-  toggleModalWarning = () => this.setState({ showWarning: !this.state.showWarning });
 
   addCustomSection = (sectionStyles) => (
     <div className={sectionStyles.pluginLeftMenuSection}>
@@ -178,11 +183,11 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
 
   handleClickAddAttribute = () => {
     // Open the modal
-    if(!this.props.modelPage.propertiesLoading && isEmpty(this.props.modelPage.properties)) {
-      router.push(`/plugins/content-type-builder/models/${this.props.match.params.modelName}#choose::attributes`);
-    }else{
-      router.push(`/plugins/content-type-builder/models/${this.props.match.params.modelName}#properties`);
-    }
+    router.push(`/plugins/content-type-builder/models/${this.props.match.params.modelName}#choose::attributes`);
+  }
+
+  handleClickAddProperty = () => {
+    router.push(`/plugins/content-type-builder/models/${this.props.match.params.modelName}#properties`);
   }
 
   handleDelete = (attributeName) => {
@@ -304,13 +309,15 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
     const showNoTableWarning = this.props.modelPage.tableExists ? '' : <NoTableWarning modelName={this.props.modelPage.model.name} />;
     const contentHeaderDescription = this.props.modelPage.model.description || 'content-type-builder.modelPage.contentHeader.emptyDescription.description';
     const content = size(this.props.modelPage.model.attributes) === 0 ?
-      <EmptyAttributesView onClickAddAttribute={this.handleClickAddAttribute} /> :
+      <EmptyAttributesView onClickAddAttribute={this.handleClickAddAttribute} onClickAddProperty={this.handleClickAddProperty} /> :
       <List
         listContent={this.props.modelPage.model}
         renderCustomListTitle={this.renderListTitle}
         listContentMappingKey={'attributes'}
         renderCustomLi={this.renderCustomLi}
         onButtonClick={this.handleClickAddAttribute}
+        onPropertyButtonClick={this.handleClickAddProperty}
+        showPropertyButton={(get(this.props.modelPage.model, '@type') !== undefined ? true : false)}
       />;
     const icoType = includes(this.props.match.params.modelName, '&source=') ? '' : 'pencil';
 
@@ -374,7 +381,6 @@ export class ModelPage extends React.Component { // eslint-disable-line react/pr
           message={location => (
             this.testIfUnsavedChangesWillBeLost(location) ? this.props.intl.formatMessage({id: 'content-type-builder.modelPage.unsaveWorkWarning'}) : true
           )}
-          when={true}
         />
       </div>
     );
@@ -391,6 +397,7 @@ ModelPage.propTypes = {
   checkIfTableExists: PropTypes.func.isRequired,
   deleteAttribute: PropTypes.func.isRequired,
   // history: PropTypes.object.isRequired,
+  intl: PropTypes.object.isRequired,
   isModelLoading: PropTypes.bool.isRequired,
   location: PropTypes.object.isRequired,
   match: PropTypes.object.isRequired,

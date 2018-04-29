@@ -162,6 +162,15 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.textarea.name"
             },
+            "name": "name",
+            "type": "string",
+            "value": "",
+            "validations": {}
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.textarea.label"
+            },
             "name": "params.label",
             "type": "string",
             "value": "",
@@ -272,6 +281,15 @@
           {
             "label": {
               "id": "content-type-builder.form.attribute.item.number.name"
+            },
+            "name": "name",
+            "type": "string",
+            "value": "",
+            "validations": {}
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.number.label"
             },
             "name": "params.label",
             "type": "string",
@@ -384,6 +402,15 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.string.name"
             },
+            "name": "name",
+            "type": "string",
+            "value": "",
+            "validations": {}
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.string.label"
+            },
             "name": "params.label",
             "type": "string",
             "value": "",
@@ -479,6 +506,15 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.string.name"
             },
+            "name": "name",
+            "type": "string",
+            "value": "",
+            "validations": {}
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.string.label"
+            },
             "name": "params.label",
             "type": "string",
             "value": "",
@@ -572,7 +608,16 @@
         "items": [
           {
             "label": {
-              "id": "content-type-builder.form.attribute.item.url.name"
+              "id": "content-type-builder.form.attribute.item.string.name"
+            },
+            "name": "name",
+            "type": "string",
+            "value": "",
+            "validations": {}
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.string.label"
             },
             "name": "params.label",
             "type": "string",
@@ -616,6 +661,15 @@
           {
             "label": {
               "id": "content-type-builder.form.attribute.item.string.name"
+            },
+            "name": "name",
+            "type": "string",
+            "value": "",
+            "validations": {}
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.string.label"
             },
             "name": "params.label",
             "type": "string",
@@ -700,6 +754,15 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.date.name"
             },
+            "name": "name",
+            "type": "string",
+            "value": "",
+            "validations": {}
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.date.label"
+            },
             "name": "params.label",
             "type": "string",
             "value": "",
@@ -754,6 +817,15 @@
           {
             "label": {
               "id": "content-type-builder.form.attribute.item.boolean.name"
+            },
+            "name": "name",
+            "type": "string",
+            "value": "",
+            "validations": {}
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.boolean.label"
             },
             "name": "params.label",
             "type": "string",
@@ -813,6 +885,15 @@
             "label": {
               "id": "content-type-builder.form.attribute.item.json.name"
             },
+            "name": "name",
+            "type": "string",
+            "value": "",
+            "validations": {}
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.json.label"
+            },
             "name": "params.label",
             "type": "string",
             "value": "",
@@ -858,6 +939,15 @@
           {
             "label": {
               "id": "content-type-builder.form.attribute.item.media.name"
+            },
+            "name": "name",
+            "type": "string",
+            "value": "",
+            "validations": {}
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.media.label"
             },
             "name": "params.label",
             "type": "string",
@@ -914,7 +1004,7 @@
         "items": [
           {
             "label": {
-              "id": "content-type-builder.form.attribute.item.defineRelation.propertyType"
+              "id": "content-type-builder.form.attribute.item.defineRelation.fieldName"
             },
             "name": "name",
             "type": "string",
@@ -927,7 +1017,7 @@
           },
           {
             "label": {
-              "id": "content-type-builder.form.attribute.item.defineRelation.fieldName"
+              "id": "content-type-builder.form.attribute.item.defineRelation.fieldLabel"
             },
             "name": "params.label",
             "type": "string",
@@ -936,10 +1026,10 @@
           },
           {
             "label": {
-              "id": "content-type-builder.form.attribute.item.defineRelation.propertyType"
+              "id": "content-type-builder.form.attribute.item.defineRelation.fieldName"
             },
             "name": "params.key",
-            "type": "multiSelect",
+            "type": "string",
             "value": "",
             "placeholder": "content-type-builder.relation.attributeName.placeholder",
             "validations": {
@@ -948,7 +1038,7 @@
           },
           {
             "label": {
-              "id": "content-type-builder.form.attribute.item.defineRelation.fieldName"
+              "id": "content-type-builder.form.attribute.item.defineRelation.fieldLabel"
             },
             "name": "params.targetLabel",
             "type": "string",
@@ -960,7 +1050,8 @@
               "id": "content-type-builder.form.attribute.item.defineRelation.propertyType"
             },
             "name": "params.key",
-            "type": "string",
+            "type": "multiSelect",
+            "items": [],
             "value": "",
             "placeholder": "content-type-builder.relation.attributeName.placeholder",
             "validations": {
@@ -1010,7 +1101,17 @@
         "items": [
           {
             "label": {
-              "id": "content-type-builder.form.attribute.item.entity.name"
+              "id": "content-type-builder.form.attribute.item.string.name"
+            },
+            "name": "name",
+            "type": "string",
+            "disabled": true,
+            "value": "",
+            "validations": {}
+          },
+          {
+            "label": {
+              "id": "content-type-builder.form.attribute.item.entity.label"
             },
             "name": "params.label",
             "type": "string",

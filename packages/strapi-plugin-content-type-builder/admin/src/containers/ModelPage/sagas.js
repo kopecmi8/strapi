@@ -86,10 +86,14 @@ export function* fetchProperties() {
   try {
     const model = yield select(makeSelectModel());
 
-    const requestURL = `/content-type-builder/properties/${schemaOrg.replace(get(model, '@type'))}`;
-    const data = yield call(request, requestURL, {method: 'GET'});
+    if(!isEmpty(get(model, ['@type']))) {
+      const requestURL = `/content-type-builder/properties/${schemaOrg.replace(get(model, '@type'))}`;
+      const data = yield call(request, requestURL, {method: 'GET'});
 
-    yield put(propertiesFetchSucceeded(data));
+      yield put(propertiesFetchSucceeded(data));
+    }else{
+      yield put(propertiesFetchSucceeded({properties: List()}));
+    }
   } catch(error) {
     yield put(propertiesFetchSucceeded({properties: List()}));
   }

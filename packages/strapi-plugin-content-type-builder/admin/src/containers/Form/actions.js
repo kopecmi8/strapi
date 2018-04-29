@@ -174,8 +174,9 @@ export function resetIsFormSet() {
   };
 }
 
-export function setAttributeForm(hash, property, range, targetRange) {
+export function setAttributeForm(hash, property, range, type) {
   const data = setAttributeFormData(hash, property, range);
+  const targetRange = (type && range) ? type : null;
   const attributeRelation = Map({
     name: schemaOrg.replace(property),
     params: Map({
@@ -215,10 +216,13 @@ export function setAttributeFormEdit(hash, contentType) {
     params: fromJS(contentTypeAttribute.params),
   });
 
+  const range = attribute.get('params').get('range');
+
   return {
     type: SET_ATTRIBUTE_FORM_EDIT,
     form,
     attribute,
+    range,
     formValidations,
   };
 }

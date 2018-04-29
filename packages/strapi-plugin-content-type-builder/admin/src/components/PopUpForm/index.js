@@ -75,17 +75,15 @@ class PopUpForm extends React.Component { // eslint-disable-line react/prefer-st
         link: this.createComponent(item),
       },
     };
-    //disable editing @type to avoid non determined state
-    const disabled = item.name === '@type' && includes(this.props.routePath, 'edit') ? true : false;
 
     //prefilled label
     if(item.name === 'params.label'){
       item.placeholder = get(this.props.values, 'name');
     }
 
-    //use label input as name if non-semantic attribute is added or edited
-    if(isEmpty(get(this.props.values, 'name')) && item.name === 'params.label'){
-      item.name = 'name';
+    //disable change of name if attribute is semantic property and disable editing @type to avoid non determined state
+    if((this.props.isSemantic && item.name === 'name' && this.props.popUpFormType !== 'contentType') || (item.name === '@type' && includes(this.props.routePath, 'edit'))){
+      item.disabled = true;
     }
 
     if (item.name === 'params.appearance.WYSIWYG') {
@@ -110,7 +108,7 @@ class PopUpForm extends React.Component { // eslint-disable-line react/prefer-st
         errors={errors}
         didCheckErrors={this.props.didCheckErrors}
         autoFocus={key === 0 && item.type !== 'date'}
-        disabled={disabled}
+        disabled={item.disabled}
       />
     );
   }
@@ -192,6 +190,7 @@ PopUpForm.propTypes = {
     PropTypes.object,
   ]),
   isOpen: PropTypes.bool.isRequired,
+  isSemantic: PropTypes.bool.isRequired,
   noButtons: PropTypes.bool,
   noNav: PropTypes.bool,
   onBlur: PropTypes.oneOfType([
@@ -213,6 +212,7 @@ PopUpForm.propTypes = {
     PropTypes.bool,
     PropTypes.func,
   ]),
+  popUpFormType: PropTypes.string.isRequired,
   popUpHeaderNavLinks: PropTypes.array,
   popUpTitle: PropTypes.string.isRequired,
   renderCustomPopUpHeader: PropTypes.oneOfType([

@@ -16,7 +16,8 @@ import {
   CONTENT_TYPE_FETCH_SUCCEEDED,
   RANGE_PROPERTIES_FETCH,
   RANGE_PROPERTIES_FETCH_SUCCEEDED,
-  REMOVE_CONTENT_TYPE_REQUIRED_ERROR, RESET_COMPONENT_STATE,
+  REMOVE_CONTENT_TYPE_REQUIRED_ERROR,
+  RESET_COMPONENT_STATE,
   RESET_FORM_ERRORS,
   RESET_IS_FORM_SET,
   SET_ATTRIBUTE_FORM,
@@ -135,6 +136,7 @@ function formReducer(state = initialState, action) {
       return state
         .set('isFormSet', true)
         .set('form', Map(action.form))
+        .set('range', action.range)
         .set('formValidations', List(action.formValidations))
         .set('modifiedDataAttribute', action.attribute);
     }

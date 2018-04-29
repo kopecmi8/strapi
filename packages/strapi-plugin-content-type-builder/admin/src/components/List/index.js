@@ -27,6 +27,13 @@ class List extends React.Component { // eslint-disable-line react/prefer-statele
               secondaryHotlineAdd
               label={'content-type-builder.button.attributes.add'}
             />
+            {this.props.showPropertyButton ? (
+              <Button
+                onClick={this.props.onPropertyButtonClick}
+                primaryAddShape
+                label={'content-type-builder.button.attributes.addProperty'}
+              />
+            ) : ''}
           </div>
         </div>
         <div className={styles.ulContainer}>
@@ -51,6 +58,7 @@ List.propTypes = {
   listContent: PropTypes.object,
   listContentMappingKey: PropTypes.string.isRequired,
   onButtonClick: PropTypes.func,
+  onPropertyButtonClick: PropTypes.func,
   renderCustomLi: PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.func,
@@ -59,13 +67,16 @@ List.propTypes = {
     PropTypes.bool,
     PropTypes.func,
   ]),
+  showPropertyButton: PropTypes.bool,
 };
 
 List.defaultProps = {
   listContent: {},
   onButtonClick: () => {},
+  onPropertyButtonClick: () => {},
   renderCustomLi: false,
   renderCustomListTitle: false,
+  showPropertyButton: false,
 };
 
 export default List;

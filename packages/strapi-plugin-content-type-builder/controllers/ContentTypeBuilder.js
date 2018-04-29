@@ -91,6 +91,14 @@ module.exports = {
 
       modelJSON.attributes = formatedAttributes;
 
+      //update models context
+      _.forEach(formatedAttributes, (attribute, key) => {
+
+        if(!attribute.range){
+          modelJSON['@context'][key] = null;
+        }
+      });
+
       const clearRelationsErrors = Service.clearRelations(name, plugin);
 
       if (!_.isEmpty(clearRelationsErrors)) {
@@ -155,19 +163,27 @@ module.exports = {
       modelJSON.connection = connection;
       modelJSON.collectionName = collectionName;
 
-      //update models context
-      _.forEach(formatedAttributes, (attribute, key) => {
-        if(attribute.reverse){
-          modelJSON['@context'][key] = {
-            '@reverse': attribute.via
-          };
-        }
-      });
+      //update models context if exists
+      if(modelJSON['@context']) {
 
-      const defaultContextParams = ['@vocab', '_id', 'id', '__v', 'createdAt', 'updatedAt'];
-      modelJSON['@context'] = _.pickBy(modelJSON['@context'], (item, key) => {
-        return _.includes(_.keys(formatedAttributes), key) || _.includes(defaultContextParams, key);
-      });
+        _.forEach(formatedAttributes, (attribute, key) => {
+          if (attribute.reverse) {
+            modelJSON['@context'][key] = {
+              '@reverse': attribute.via
+            };
+          }
+
+          if (!attribute.range) {
+            modelJSON['@context'][key] = null;
+          }
+        });
+
+        const defaultContextParams = ['@vocab', '_id', 'id', '__v', 'createdAt', 'updatedAt'];
+        modelJSON['@context'] = _.pickBy(modelJSON['@context'], (item, key) => {
+          return _.includes(_.keys(formatedAttributes), key) || _.includes(defaultContextParams, key);
+        });
+
+      }
 
       const clearRelationsErrors = Service.clearRelations(model, plugin);
 

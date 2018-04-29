@@ -137,7 +137,9 @@ module.exports = {
     let schemaOrg = new SchemaOrg();
     const types = schemaOrg.getSubClasses('Thing', true);
 
-    let typesArray = [];
+    let typesArray = [
+      {label: 'Thing', value: 'http://schema.org/Thing'}
+    ];
     types.forEach(v => typesArray.push({label: v, value: 'http://schema.org/'+v}));
 
     return typesArray;
@@ -351,8 +353,10 @@ module.exports = {
 
           _.forEach(relationsToDelete, relation => {
             modelJSON.attributes[relation.alias] = undefined;
-            if(modelJSON['@context'][relation.alias]) {
-              modelJSON['@context'][relation.alias] = undefined;
+            if(modelJSON['@context']) {
+              if (modelJSON['@context'][relation.alias] || modelJSON['@context'][relation.alias] === null) {
+                modelJSON['@context'][relation.alias] = undefined;
+              }
             }
           });
 
@@ -444,9 +448,18 @@ module.exports = {
             attr.range = params.targetRange;
             attr.reverse = params.targetReverse;
 
-            if(params.targetReverse) {
-              modelJSON['@context'][params.key] = {'@reverse': name}
+            if(modelJSON['@context']) {
+
+              if (params.targetReverse) {
+                modelJSON['@context'][params.key] = {'@reverse': name}
+              }
+
+              if (!params.targetRange) {
+                modelJSON['@context'][params.key] = null;
+              }
+
             }
+
             modelJSON.attributes[params.key] = attr;
 
             try {

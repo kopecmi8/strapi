@@ -77,7 +77,7 @@ class PopUpEntity extends React.Component {
   }
 
   renderInput = (item, key) => {
-    const customBootstrapClass = item.type === 'textarea' ? 'col-md-8 offset-md-4 mr-md-5' : 'col-md-6';
+    const customBootstrapClass = item.type === 'multiSelect' ? 'col-md-12' : 'col-md-6';
     const value = !isEmpty(this.props.values) && includes(item.name, '.') ? get(this.props.values, [split(item.name, '.')[0], split(item.name, '.')[1]]) : this.props.values[item.name];
     const errorIndex = findIndex(this.props.formErrors, ['name', item.name]);
     const errors = errorIndex !== -1 ? this.props.formErrors[errorIndex].errors : [];
@@ -109,6 +109,7 @@ class PopUpEntity extends React.Component {
         selectOptions={item.items}
         placeholder={item.placeholder}
         title={item.title}
+        disabled={item.disabled}
         errors={errors}
         isLoading={this.props.showLoader}
         didCheckErrors={this.props.didCheckErrors}

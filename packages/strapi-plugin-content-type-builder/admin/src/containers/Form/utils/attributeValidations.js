@@ -23,7 +23,6 @@ export default function checkAttributeValidations(errors) {
 
   // Check key uniqueness
   if (size(sameParamsKey) > 0 && isEditingParamsKey) {
-    console.log('test');
     formErrors.push({ name: 'params.key', errors: [{ id: 'content-type-builder.error.attribute.key.taken' }]});
   }
 

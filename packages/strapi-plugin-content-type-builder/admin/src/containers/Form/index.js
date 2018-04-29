@@ -9,6 +9,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
   camelCase,
+  cloneDeep,
   compact,
   concat,
   findIndex,
@@ -57,6 +58,7 @@ import {
   contentTypeFetchSucceeded,
   prepareForm,
   removeContentTypeRequiredError,
+  resetComponent,
   resetFormErrors,
   resetIsFormSet,
   setAttributeForm,
@@ -486,6 +488,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
 
     switch (true) {
       case includes(this.props.hash, 'choose'):
+        this.props.resetComponent();
         returnValue = this.renderModalBodyChooseAttributes;
         break;
       case includes(this.props.hash, 'properties'):
@@ -499,12 +502,15 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
 
 
   renderModalBodyChooseAttributes = () => {
-    const attributesDisplay = forms.attributesDisplay.items;
+    const attributesDisplay = cloneDeep(forms.attributesDisplay.items);
 
     // Don't display the media field if the upload plugin isn't installed
     if (!has(this.context.plugins.toJS(), 'upload')) {
       attributesDisplay.splice(8, 1);
     }
+
+    // Don't display the entity field because it is only semantic feature yet
+    attributesDisplay.splice(11, 1);
 
     return (
       map(attributesDisplay, (attribute, key) => (
@@ -559,6 +565,25 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
     return includes(this.props.hash, 'attributenumber');
   }
 
+  prepareRangeProperties = () => {
+    const contentTypeType = get(this.props.contentTypeData, '@type');
+
+    return this.props.rangeProperties.filter((property) => {
+      const ranges = get(property, 'rangeIncludes');
+
+      if(!isArray(ranges)){
+        return contentTypeType === ranges;
+      }else{
+        return includes(ranges, contentTypeType);
+      }
+    }).map((property) => {
+      return {
+        'label': get(property, 'label'),
+        'value': get(property, 'label'),
+      };
+    });
+  }
+
   renderInput = (item, key) => (
     <InputCheckboxWithNestedInputs
       key={key}
@@ -600,11 +625,14 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
     const buttonSubmitMessage = 'form.button.continue';
     const renderCustomPopUpHeader = !includes(this.props.hash, '#choose') && includes(this.props.hash, '::attribute') ? this.renderCustomPopUpHeader(popUpTitle) : false;
     const edit = includes(this.props.hash, '#edit');
+    const rangeType = get(this.props.modifiedDataAttribute, ['params', 'range']);
+    const isSemantic = (!isEmpty(get(this.props.contentTypeData, '@type')) && !isEmpty(this.props.range));
+
 
     if (includes(popUpFormType, 'relation')) {
       const contentType = this.props.modelName.split('&source=');
       const contentTypeIndex = contentType.length === 2 ? { name: contentType[0], source: contentType[1] } : { name: contentType[0] };
-      const rangeType = get(this.props.modifiedDataAttribute, ['params', 'range']);
+      const rangeProperties = this.prepareRangeProperties();
       let dropDownItems = this.props.models.map((model) => {
         return {
           'icon': 'fa-caret-square-o-right',
@@ -615,27 +643,15 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
       });
       const contentTypeHeader = get(dropDownItems, [findIndex(dropDownItems, contentTypeIndex)]);
 
-      dropDownItems = dropDownItems.filter((model) => {
-        const type = get(model, '@type');
-        if(type !== undefined) {
-          return rangeType === type;
-        }
-      });
-
-      const contentTypeType = get(this.props.contentTypeData, '@type');
-      const rangeProperties = this.props.rangeProperties.filter((property) => {
-        const ranges = get(property, 'rangeIncludes');
-        if(!isArray(ranges)){
-          return contentTypeType === ranges;
-        }else{
-          return includes(ranges, contentTypeType);
-        }
-      }).map((property) => {
-        return {
-          'label': get(property, 'label'),
-          'value': get(property, 'label'),
-        };
-      });
+      //filter content types by @type if create semantic relation
+      if(isSemantic) {
+        dropDownItems = dropDownItems.filter((model) => {
+          const type = get(model, '@type');
+          if (type !== undefined) {
+            return rangeType === type;
+          }
+        });
+      }
 
       return (
         <PopUpRelations
@@ -653,6 +669,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
           rangeProperties={rangeProperties}
           resetIsFormSet={this.props.resetIsFormSet}
           isRangePropertiesFetched={this.props.isRangePropertiesFetched}
+          isSemantic={isSemantic}
           dropDownItems={dropDownItems}
           onSubmit={this.handleSubmit}
           formErrors={this.props.formErrors}
@@ -707,8 +724,9 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
           formErrors={this.props.formErrors}
           didCheckErrors={this.props.didCheckErrors}
           pluginID="content-type-builder"
-          overrideCustomBootstrapClass={includes(this.props.hash, 'attributenumber') && includes(this.props.hash, 'baseSettings')}
+          overrideCustomBootstrapClass={!(includes(this.props.hash, 'contentType') && includes(this.props.hash, 'baseSettings'))}
           customBootstrapClass='col-md-6'
+          isSemantic={isSemantic}
         />
       </div>
     );
@@ -737,6 +755,7 @@ function mapDispatchToProps(dispatch) {
       contentTypeFetchSucceeded,
       prepareForm,
       removeContentTypeRequiredError,
+      resetComponent,
       resetFormErrors,
       resetIsFormSet,
       setAttributeForm,
@@ -792,6 +811,7 @@ Form.propTypes = {
   rangeProperties: PropTypes.array,
   redirectRoute: PropTypes.string.isRequired,
   removeContentTypeRequiredError: PropTypes.func.isRequired,
+  resetComponent: PropTypes.func.isRequired,
   resetFormErrors: PropTypes.func.isRequired,
   resetIsFormSet: PropTypes.func.isRequired,
   routePath: PropTypes.string.isRequired,

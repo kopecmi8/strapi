@@ -8,7 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
 import Loader from 'react-loader';
-import { get, isEmpty, map, startCase, isNull } from 'lodash';
+import { get, isEmpty, map, startCase } from 'lodash';
 import pluralize from 'pluralize';
 import cn from 'classnames';
 
@@ -26,13 +26,6 @@ class RelationBox extends React.Component { // eslint-disable-line react/prefer-
     this.state = {
       showMenu: false,
     };
-  }
-
-  componentDidUpdate() {
-    //prefilled value used in case of reversed property
-    if(isNull(this.props.value)) {
-      this.props.onChange({target: {name: get(this.props.input, 'name'), value: this.props.contentTypeTargetPlaceholder}});
-    }
   }
 
   handleClick = (e) => {
