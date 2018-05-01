@@ -1008,7 +1008,7 @@
             },
             "name": "name",
             "type": "string",
-            "disabled": true,
+            "disabled": false,
             "value": "",
             "placeholder": "content-type-builder.relation.attributeName.placeholder",
             "validations": {
@@ -1030,6 +1030,7 @@
             },
             "name": "params.key",
             "type": "string",
+            "disabled": false,
             "value": "",
             "placeholder": "content-type-builder.relation.attributeName.placeholder",
             "validations": {

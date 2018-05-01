@@ -154,26 +154,22 @@ class PopUpRelations extends React.Component { // eslint-disable-line react/pref
     let startInput = cloneDeep(get(this.props.form, ['items', '0']));
 
     //modify start and target input based on semantic needs
-    if(startInput && targetInput ) {
+    if(startInput && targetInput && this.props.isSemantic) {
 
-      if (this.props.isRangePropertiesFetched && this.props.isSemantic && !isEmpty(this.props.rangeProperties)) {
+      if (this.props.isRangePropertiesFetched && !isEmpty(this.props.rangeProperties)) {
         targetInput = cloneDeep(get(this.props.form, ['items', '4']));
         targetInput.items = this.props.rangeProperties;
       }
 
       if (get(this.props.values, ['params', 'reverse'])) {
         targetInput.disabled = true;
-        startInput.disabled = false;
+      }else{
+        startInput.disabled = true;
       }
 
-      if (!this.props.isSemantic) {
-        startInput.disabled = false;
-      }
-      
-      if (this.props.isSemantic){
-        startInput.label.id = 'content-type-builder.form.attribute.item.defineRelation.propertyType';
-        targetInput.label.id = 'content-type-builder.form.attribute.item.defineRelation.propertyType';
-      }
+      startInput.label.id = 'content-type-builder.form.attribute.item.defineRelation.propertyType';
+      targetInput.label.id = 'content-type-builder.form.attribute.item.defineRelation.propertyType';
+
     }
 
 

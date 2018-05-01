@@ -8,7 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
 import Loader from 'react-loader';
-import { get, isEmpty, map, startCase } from 'lodash';
+import {get, isEmpty, map, startCase, upperFirst} from 'lodash';
 import pluralize from 'pluralize';
 import cn from 'classnames';
 
@@ -91,20 +91,11 @@ class RelationBox extends React.Component { // eslint-disable-line react/prefer-
   )
 
   render() {
-    let placeholder;
-
-    switch (true) {
-      case this.props.relationType === 'oneToMany' && this.props.isFirstContentType:
-        placeholder = pluralize(this.props.contentTypeTargetPlaceholder);
-        break;
-      case this.props.relationType === 'manyToOne' && !this.props.isFirstContentType:
-        placeholder = pluralize(this.props.contentTypeTargetPlaceholder);
-        break;
-      case this.props.relationType === 'manyToMany':
-        placeholder = pluralize(this.props.contentTypeTargetPlaceholder);
-        break;
-      default:
-        placeholder = this.props.contentTypeTargetPlaceholder;
+    let placeholder = upperFirst(this.props.value);
+    if(this.props.relationType === 'manyToMany' || (this.props.relationType === 'oneToMany' && this.props.isFirstContentType) || (this.props.relationType === 'manyToOne' && !this.props.isFirstContentType)){
+      placeholder = pluralize(placeholder);
+    }else{
+      placeholder = pluralize.singular(placeholder);
     }
 
     const content = isEmpty(this.props.input) ?
@@ -217,7 +208,6 @@ class RelationBox extends React.Component { // eslint-disable-line react/prefer-
 
 RelationBox.propTypes = {
   autoFocus: PropTypes.bool,
-  contentTypeTargetPlaceholder: PropTypes.string,
   didCheckErrors: PropTypes.bool.isRequired,
   dropDownItems: PropTypes.array,
   errors: PropTypes.array,
@@ -237,7 +227,6 @@ RelationBox.propTypes = {
 
 RelationBox.defaultProps = {
   autoFocus: false,
-  contentTypeTargetPlaceholder: '',
   dropDownItems: [],
   errors: [],
   header: {},

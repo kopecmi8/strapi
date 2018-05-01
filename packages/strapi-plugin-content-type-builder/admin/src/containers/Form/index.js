@@ -132,6 +132,11 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
     if (prevProps.modelLoading !== this.props.modelLoading && !isEmpty(this.props.hash)) {
       this.initComponent(this.props, true);
     }
+
+    if (includes(this.props.hash, 'choose')) {
+      this.props.resetComponent();
+    }
+
   }
 
   addAttributeToContentType = () => {
@@ -488,7 +493,6 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
 
     switch (true) {
       case includes(this.props.hash, 'choose'):
-        this.props.resetComponent();
         returnValue = this.renderModalBodyChooseAttributes;
         break;
       case includes(this.props.hash, 'properties'):

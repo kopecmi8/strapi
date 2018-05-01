@@ -1,4 +1,4 @@
-import { forEach, upperFirst, mapValues, pickBy, slice, findKey, keys, get, set } from 'lodash';
+import { forEach, upperFirst, mapValues, pickBy, slice, findKey, keys, get, set, isEmpty } from 'lodash';
 import pluralize from 'pluralize';
 
 /**
@@ -44,9 +44,11 @@ const generateSchema = (responses) => {
           get(responses.models, [current.model || current.collection, 'info', 'mainField']) ||
           findKey(get(responses.models, [current.model || current.collection, 'attributes']), { type : 'string'}) ||
           'id';
+        const label = !isEmpty(model.attributes[current.alias].label) ? model.attributes[current.alias].label : null;
 
         acc[current.alias] = {
           ...current,
+          label: label,
           description: '',
           displayedAttribute,
         };

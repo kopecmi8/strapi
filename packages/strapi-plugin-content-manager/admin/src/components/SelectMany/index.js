@@ -9,6 +9,7 @@ import Select from 'react-select';
 import PropTypes from 'prop-types';
 import 'react-select/dist/react-select.css';
 import { isArray, isNull, isUndefined, get, findIndex } from 'lodash';
+import pluralize from 'pluralize';
 
 import request from 'utils/request';
 import templateObject from 'utils/templateObject';
@@ -79,6 +80,7 @@ class SelectMany extends React.Component { // eslint-disable-line react/prefer-s
   }
 
   render() {
+    const label = this.props.relation.label ? this.props.relation.label : pluralize(this.props.relation.alias);
     const description = this.props.relation.description
       ? <p>{this.props.relation.description}</p>
       : '';
@@ -90,7 +92,7 @@ class SelectMany extends React.Component { // eslint-disable-line react/prefer-s
     /* eslint-disable jsx-a11y/label-has-for */
     return (
       <div className={`form-group ${styles.selectMany}`}>
-        <label htmlFor={this.props.relation.alias}>{this.props.relation.alias}</label>
+        <label htmlFor={this.props.relation.alias}>{label}</label>
         {description}
         <Select.Async
           onChange={this.handleChange}
