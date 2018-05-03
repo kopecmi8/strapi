@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {isArray, includes, isEmpty, map} from 'lodash';
+import { FormattedMessage } from 'react-intl';
 import {router} from 'app';
 
 //components
@@ -32,9 +33,9 @@ class PropertiesForm extends React.Component {
 
     if(this.props.range === SCHEMA_TEXT){
       attributes = attributes.filter((attribute) => {
-        if(this.props.property === SCHEMA_EMAIL) {
+        if (this.props.property === SCHEMA_EMAIL) {
           return includes(attribute.type, 'email');
-        }else{
+        } else {
           return !includes(attribute.type, 'email');
         }
       });
@@ -138,6 +139,19 @@ class PropertiesForm extends React.Component {
 
     const rangesSelect = this.props.property ? this.renderRangesSelect() : '';
     const attributeSelect = this.props.property && this.props.range ? this.renderAttributeSelect() : '';
+    const inputDescription = !isEmpty(this.props.type) ? {
+      id: 'content-type-builder.form.properties.property.description',
+      params: {
+        link: (
+          <a
+            href={this.props.type}
+            target="_blank"
+          >
+            <FormattedMessage id='content-type-builder.form.properties.property.link.properties' defaultMessage='' />
+          </a>
+        ),
+      },
+    } : '';
 
     return (
       <div className='col-md-12 row'>
@@ -147,6 +161,7 @@ class PropertiesForm extends React.Component {
           isLoading={this.props.showLoader}
           onChange={this.handleSelectProperty}
           label={{id: 'content-type-builder.form.properties.property'}}
+          inputDescription={inputDescription}
           name='properties'
           value={this.props.property}
           customBootstrapClass='col-md-6'
@@ -170,12 +185,14 @@ PropertiesForm.propTypes = {
   range: PropTypes.string,
   routePath: PropTypes.string.isRequired,
   showLoader: PropTypes.bool.isRequired,
+  type: PropTypes.string,
   usedProperties: PropTypes.array.isRequired,
 };
 
 PropertiesForm.defaultProps = {
   property: '',
   range: '',
+  type: '',
 };
 
 export default PropertiesForm;

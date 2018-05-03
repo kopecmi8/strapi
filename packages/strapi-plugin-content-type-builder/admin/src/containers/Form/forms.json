@@ -27,7 +27,24 @@
             "required": true
           },
           "inputDescription": {
-            "id": "content-type-builder.form.contentType.item.type.description"
+            "id": "content-type-builder.form.contentType.item.type.description",
+            "params": {
+              "link": {
+                "parent": {
+                  "type": "a",
+                  "attr": {
+                    "href": "http://schema.org/docs/full.html",
+                    "target": "_blank"
+                  }
+                },
+                "children": {
+                  "type": "FormattedMessage",
+                  "attr": {
+                    "id": "content-type-builder.form.contentType.item.type.link.description"
+                  }
+                }
+              }
+            }
           }
         },
         {

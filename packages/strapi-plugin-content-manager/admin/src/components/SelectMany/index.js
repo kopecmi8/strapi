@@ -8,7 +8,7 @@ import React from 'react';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
 import 'react-select/dist/react-select.css';
-import { cloneDeep, isArray, isNull, isUndefined, get, findIndex, includes } from 'lodash';
+import {cloneDeep, isArray, isNull, isUndefined, get, findIndex, includes, startCase} from 'lodash';
 import pluralize from 'pluralize';
 
 import request from 'utils/request';
@@ -123,7 +123,7 @@ class SelectMany extends React.Component {
   }
 
   render() {
-    const label = this.props.relation.label ? this.props.relation.label : pluralize(this.props.relation.alias);
+    const label = this.props.relation.label ? this.props.relation.label : startCase(pluralize(this.props.relation.alias));
     const description = this.props.relation.description ? (
       <p>{this.props.relation.description}</p>
     ) : (

@@ -8,7 +8,7 @@ import React from 'react';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
 import 'react-select/dist/react-select.css';
-import { cloneDeep, map, includes, isArray, isNull, isUndefined, isFunction, get, findIndex } from 'lodash';
+import {cloneDeep, map, includes, isArray, isNull, isUndefined, isFunction, get, findIndex, startCase} from 'lodash';
 import pluralize from 'pluralize';
 
 import request from 'utils/request';
@@ -117,7 +117,7 @@ class SelectOne extends React.Component { // eslint-disable-line react/prefer-st
   }
 
   render() {
-    const label = this.props.relation.label ? this.props.relation.label : pluralize.singular(this.props.relation.alias);
+    const label = this.props.relation.label ? this.props.relation.label : startCase(pluralize.singular(this.props.relation.alias));
     const description = this.props.relation.description
       ? <p>{this.props.relation.description}</p>
       : '';

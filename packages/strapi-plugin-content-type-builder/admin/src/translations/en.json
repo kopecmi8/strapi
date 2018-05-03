@@ -99,7 +99,8 @@
 
   "form.contentType.item.connections": "Connection",
   "form.contentType.item.type": "Type",
-  "form.contentType.item.type.description": "Type is Schema.org semantic type",
+  "form.contentType.item.type.description": "Type is {link} semantic type of entity",
+  "form.contentType.item.type.link.description": "Schema.org",
   "form.contentType.item.name": "Name",
   "form.contentType.item.name.description": "Content Type names should be singular: {link}",
   "form.contentType.item.name.link.description": "Check out our documentation",
@@ -110,6 +111,8 @@
     "Useful when the name of your Content Type and your table name differ",
 
   "form.properties.property": "Property",
+  "form.properties.property.description": "Get more info about {link}",
+  "form.properties.property.link.properties": "properties",
   "form.properties.range": "Range includes",
   "form.properties.attribute": "Select field type",
 

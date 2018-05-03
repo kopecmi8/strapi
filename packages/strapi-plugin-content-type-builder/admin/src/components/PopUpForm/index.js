@@ -7,7 +7,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
-import { get, map, includes, split, isEmpty, findIndex } from 'lodash';
+import {get, map, includes, split, isEmpty, findIndex, startCase} from 'lodash';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import Input from 'components/InputsIndex';
 import PopUpHeaderNavLink from 'components/PopUpHeaderNavLink';
@@ -78,7 +78,7 @@ class PopUpForm extends React.Component { // eslint-disable-line react/prefer-st
 
     //prefilled label
     if(item.name === 'params.label'){
-      item.placeholder = get(this.props.values, 'name');
+      item.placeholder = startCase(get(this.props.values, 'name'));
     }
 
     //disable change of name if attribute is semantic property and disable editing @type to avoid non determined state

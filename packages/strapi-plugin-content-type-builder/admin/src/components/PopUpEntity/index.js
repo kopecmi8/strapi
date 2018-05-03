@@ -6,7 +6,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {findIndex, get, includes, isEmpty, map, split, find, join, pickBy } from 'lodash';
+import {findIndex, get, includes, isEmpty, map, split, find, join, pickBy, startCase} from 'lodash';
 import { fromJS } from 'immutable';
 import { FormattedMessage } from 'react-intl';
 
@@ -90,7 +90,7 @@ class PopUpEntity extends React.Component {
 
     //prefilled label
     if(item.name === 'params.label'){
-      item.placeholder = get(this.props.values, 'name');
+      item.placeholder = startCase(get(this.props.values, 'name'));
     }
 
     return (

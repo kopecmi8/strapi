@@ -116,7 +116,7 @@ class PropertyForm extends React.Component {
     const property = schemaOrg.replace(this.props.property);
     const rangeSelect = this.renderRangeSelect();
     const attributeSelect = this.renderAttributeSelect();
-    const label = (this.props.values.label !== undefined) ? this.props.values.label : startCase(property);
+    const placeholder = (this.props.values.label !== undefined) ? this.props.values.label : startCase(property);
 
     return (
       <div
@@ -142,20 +142,13 @@ class PropertyForm extends React.Component {
               label={{id: 'content-type-builder.form.property.label'}}
               name={`params.entity.attributes.${property}.label`}
               id={`params.entity.attributes.${property}.label`}
-              value={label}
+              value={this.props.values.label}
+              placeholder={placeholder}
               onChange={this.props.onChange}
               customBootstrapClass={'col-md-4'}
             />
             {rangeSelect}
             {attributeSelect}
-            <Input
-              type={'checkbox'}
-              label={{id: 'content-type-builder.form.property.required'}}
-              name={`params.entity.attributes.${property}.required`}
-              id={`params.entity.attributes.${property}.required`}
-              value={this.props.values.required}
-              onChange={this.props.onChange}
-            />
           </div>
         </div>
       </div>

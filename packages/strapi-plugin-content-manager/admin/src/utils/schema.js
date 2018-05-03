@@ -1,4 +1,4 @@
-import { forEach, upperFirst, mapValues, pickBy, slice, findKey, keys, get, set, isEmpty } from 'lodash';
+import { forEach, upperFirst, startCase, mapValues, pickBy, slice, findKey, keys, get, set, isEmpty } from 'lodash';
 import pluralize from 'pluralize';
 
 /**
@@ -25,7 +25,7 @@ const generateSchema = (responses) => {
     schemaModel.fields = mapValues(pickBy(model.attributes, attribute =>
       !attribute.model && !attribute.collection
     ), (value, attribute) => ({
-      label: value.label || upperFirst(attribute),
+      label: value.label || startCase(attribute),
       description: '',
       type: value.type || 'string',
       value: value.value || '',

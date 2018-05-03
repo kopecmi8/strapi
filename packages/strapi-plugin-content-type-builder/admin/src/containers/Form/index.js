@@ -544,6 +544,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
         property={this.props.property}
         range={this.props.range}
         routePath={this.props.routePath}
+        type={this.props.contentTypeData['@type']}
         usedProperties={this.props.contentTypeData.attributes.map((item) => item.name)}
       />
     );

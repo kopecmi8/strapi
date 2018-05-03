@@ -8,7 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
 import Loader from 'react-loader';
-import {get, isEmpty, map, startCase, upperFirst} from 'lodash';
+import {camelCase, get, isEmpty, map, startCase} from 'lodash';
 import pluralize from 'pluralize';
 import cn from 'classnames';
 
@@ -22,10 +22,14 @@ import styles from './styles.scss';
 class RelationBox extends React.Component { // eslint-disable-line react/prefer-stateless-function
   constructor(props) {
     super(props);
-
+    this.handleBlur.bind(this);
     this.state = {
       showMenu: false,
     };
+  }
+
+  handleBlur = ({ target }) => {
+    this.props.onChange({target: {'name': target.name, 'value': camelCase(target.value)}});
   }
 
   handleClick = (e) => {
@@ -91,11 +95,11 @@ class RelationBox extends React.Component { // eslint-disable-line react/prefer-
   )
 
   render() {
-    let placeholder = upperFirst(this.props.value);
+    let placeholder = this.props.value ? this.props.value : '';
     if(this.props.relationType === 'manyToMany' || (this.props.relationType === 'oneToMany' && this.props.isFirstContentType) || (this.props.relationType === 'manyToOne' && !this.props.isFirstContentType)){
-      placeholder = pluralize(placeholder);
+      placeholder = startCase(pluralize(placeholder));
     }else{
-      placeholder = pluralize.singular(placeholder);
+      placeholder = startCase(pluralize.singular(placeholder));
     }
 
     const content = isEmpty(this.props.input) ?
@@ -104,6 +108,7 @@ class RelationBox extends React.Component { // eslint-disable-line react/prefer-
         tabIndex={this.props.tabIndex}
         type={get(this.props.input, 'type')}
         onChange={this.props.onChange}
+        onBlur={this.handleBlur}
         label={get(this.props.input, 'label')}
         name={get(this.props.input, 'name')}
         value={this.props.value}
